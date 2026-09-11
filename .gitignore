@@ -1,0 +1,34 @@
+
+# ==========================
+# Python cache
+# ==========================
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ==========================
+# Conda / Virtual env
+# ==========================
+.env
+.venv/
+conda-meta/
+
+# ==========================
+# VS Code
+# ==========================
+.vscode/settings.json
+
+# ==========================
+# Large datasets (don't upload Kaggle data)
+# ==========================
+data/raw/
+
+# Ignore future embeddings
+data/embeddings/
+
+# Ignore notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
