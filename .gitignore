@@ -32,3 +32,24 @@ data/embeddings/
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# Virtual environments
+.venv/
+.venv_site/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Large datasets
+data/raw/
+data/embeddings/
+
+# OS files
+.DS_Store
+Thumbs.db
