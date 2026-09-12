@@ -100,3 +100,45 @@ Run the Phase 5 pipeline with:
 - `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase5.py --force`
 
 This phase is idempotent and safe to rerun without modifying earlier phases.
+
+## Phase 6 — Retrieval Layer for RAG
+
+### Overview
+Phase 6 builds the semantic retrieval layer that powers the support chatbot. It reuses the validated Phase 5 golden intent dataset, creates a retrieval-ready knowledge base, encodes the documents with a SentenceTransformers model, stores a FAISS cosine index, generates evaluation queries, computes retrieval metrics, and writes production-quality assets for downstream use.
+
+### Pipeline components
+- Builds knowledge documents from the golden intent corpus and conversation metadata.
+- Generates 384-dimensional normalized embeddings using the all-MiniLM-L6-v2 encoder.
+- Persists a document catalog and embedding matrix in `data/knowledge_base/`.
+- Creates a FAISS similarity index in `models/faiss/amazon_support.index`.
+- Generates deterministic evaluation queries in `data/evaluation/retrieval_eval_queries.csv`.
+- Computes retrieval metrics including Recall@1, Recall@3, Recall@5, MRR, Hit Rate, and average similarity.
+- Writes markdown and JSON reports to `report/`.
+- Produces charts in `assets/retrieval/` for intent, language, recall, and embedding distributions.
+
+### Key outputs
+- `data/knowledge_base/knowledge_documents.parquet`
+- `data/knowledge_base/knowledge_documents.csv`
+- `data/knowledge_base/knowledge_embeddings.npy`
+- `data/knowledge_base/document_metadata.csv`
+- `models/faiss/amazon_support.index`
+- `models/faiss/index_metadata.json`
+- `data/evaluation/retrieval_eval_queries.csv`
+- `report/retrieval_metrics.json`
+- `report/retrieval_evaluation.md`
+- `assets/retrieval/*.png`
+
+### Execution
+Run the full pipeline with:
+- `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase6.py`
+- `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase6.py --force`
+
+### Validation
+The Phase 6 runner validates all required outputs and the retrieval API, then prints the completion banner:
+- `# ======================================================`
+- `PHASE 6 COMPLETED SUCCESSFULLY`
+
+The retrieval API is exposed via `src/retrieval/retriever.py` and can be queried in a CLI demo using:
+- `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/query_retriever.py`
+
+This phase is fully reusable, deterministic, and safe to rerun without altering earlier project phases.
