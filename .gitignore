@@ -53,3 +53,7 @@ data/embeddings/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Large processed datasets
+data/processed/*.csv
+!data/processed/amazon_conversations_sample.csv
