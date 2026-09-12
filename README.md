@@ -12,3 +12,23 @@ This project contains the structure for an AI-powered support agent pipeline.
 - `tests/` for test files
 - `requirements.txt` for dependencies
 - `decision_log.md` for major decisions and project notes
+
+
+
+
+## Phase 3 Completed ✅
+
+### Exploratory Data Analysis
+- Reconstructed 82,556 Amazon customer support conversations.
+- Generated conversation statistics and distributions.
+- Added customer vs Amazon interaction visualizations.
+- Generated language and keyword analysis assets.
+- Created preprocessing pipeline for downstream intent discovery.
+
+### Output Artifacts
+- Conversation length distribution
+- Customer vs Amazon scatter plot
+- Customer message distribution
+- Amazon message distribution
+- Conversation word distribution
+- Phase 3 EDA summary report
