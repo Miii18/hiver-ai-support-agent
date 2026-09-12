@@ -1,0 +1,98 @@
+[
+  {
+    "intent_label": "Amazon Customer Contest",
+    "intent_category": "Promotions & Coupons",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "order"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 37
+  },
+  {
+    "intent_label": "Amazon Customer Tn",
+    "intent_category": "Prime Membership",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "prime"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 808
+  },
+  {
+    "intent_label": "Amazon Vous Customer",
+    "intent_category": "Delivery",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "prime",
+      "support"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 487
+  },
+  {
+    "intent_label": "Customer Amazon Die",
+    "intent_category": "Login & Authentication",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "account",
+      "support",
+      "prime"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 298
+  },
+  {
+    "intent_label": "Customer Amazon Order",
+    "intent_category": "Orders",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "order",
+      "refund",
+      "account",
+      "return",
+      "support",
+      "issue",
+      "delivery",
+      "shipment",
+      "prime",
+      "payment"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 7583
+  },
+  {
+    "intent_label": "Customer Amazon Que",
+    "intent_category": "Technical Issue",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "prime"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 208
+  },
+  {
+    "intent_label": "Other",
+    "intent_category": "Other",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "order",
+      "account",
+      "issue",
+      "support",
+      "return"
+    ],
+    "average_confidence": 0.0,
+    "conversation_count": 35
+  },
+  {
+    "intent_label": "Que Amazon Customer",
+    "intent_category": "Returns & Refunds",
+    "representative_conversations": 15,
+    "top_keywords": [
+      "prime"
+    ],
+    "average_confidence": 1.0,
+    "conversation_count": 544
+  }
+]

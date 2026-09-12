@@ -1,0 +1,34 @@
+{
+  "total_intents": 8,
+  "conversations_per_intent": {
+    "Customer Amazon Order": 7583,
+    "Amazon Customer Tn": 808,
+    "Que Amazon Customer": 544,
+    "Amazon Vous Customer": 487,
+    "Customer Amazon Die": 298,
+    "Customer Amazon Que": 208,
+    "Amazon Customer Contest": 37,
+    "Other": 35
+  },
+  "percentages": {
+    "Customer Amazon Order": 75.83,
+    "Amazon Customer Tn": 8.08,
+    "Que Amazon Customer": 5.44,
+    "Amazon Vous Customer": 4.87,
+    "Customer Amazon Die": 2.98,
+    "Customer Amazon Que": 2.08,
+    "Amazon Customer Contest": 0.37,
+    "Other": 0.35
+  },
+  "average_confidence": 0.9604,
+  "language_breakdown": {
+    "ja": 6126,
+    "de": 2588,
+    "fr": 842,
+    "es": 353,
+    "pt": 91
+  },
+  "largest_intent": "Customer Amazon Order",
+  "smallest_intent": "Other",
+  "imbalance_ratio": 216.6571
+}

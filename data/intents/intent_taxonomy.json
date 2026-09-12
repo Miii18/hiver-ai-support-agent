@@ -1,0 +1,194 @@
+[
+  {
+    "intent_id": "INT-001",
+    "intent_label": "Customer Amazon Order",
+    "intent_category": "Orders",
+    "cluster_ids": [
+      1
+    ],
+    "keywords": [
+      "customer",
+      "amazon",
+      "order",
+      "delivery",
+      "sorry",
+      "amazon sorry",
+      "help",
+      "details",
+      "like",
+      "ll",
+      "prime",
+      "look"
+    ],
+    "description": "Customer requests about placing, modifying, or tracking orders.",
+    "conversation_count": 7583,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-002",
+    "intent_label": "Amazon Vous Customer",
+    "intent_category": "Delivery",
+    "cluster_ids": [
+      2,
+      3
+    ],
+    "keywords": [
+      "amazon",
+      "vous",
+      "customer",
+      "je",
+      "le",
+      "est",
+      "la",
+      "que",
+      "pour",
+      "en",
+      "pas",
+      "votre"
+    ],
+    "description": "Problems involving late, missing, or carrier-delivery communication.",
+    "conversation_count": 395,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-003",
+    "intent_label": "Que Amazon Customer",
+    "intent_category": "Returns & Refunds",
+    "cluster_ids": [
+      8
+    ],
+    "keywords": [
+      "que",
+      "amazon",
+      "customer",
+      "el",
+      "en",
+      "la",
+      "por",
+      "para",
+      "hola",
+      "lo",
+      "es",
+      "amazon hola"
+    ],
+    "description": "Return, refund, replacement, and reimbursement related support requests.",
+    "conversation_count": 544,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-004",
+    "intent_label": "Amazon Customer Tn",
+    "intent_category": "Prime Membership",
+    "cluster_ids": [
+      4,
+      5
+    ],
+    "keywords": [
+      "amazon",
+      "customer",
+      "tn",
+      "sk",
+      "ri",
+      "et",
+      "ek",
+      "mh",
+      "ym",
+      "ありがとうございます",
+      "oo",
+      "sm"
+    ],
+    "description": "Question and support needs for Prime subscriptions, billing, and membership benefits.",
+    "conversation_count": 570,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-005",
+    "intent_label": "Customer Amazon Die",
+    "intent_category": "Login & Authentication",
+    "cluster_ids": [
+      6,
+      7
+    ],
+    "keywords": [
+      "customer",
+      "amazon",
+      "die",
+      "ich",
+      "nicht",
+      "das",
+      "ist",
+      "es",
+      "der",
+      "und",
+      "bei",
+      "für"
+    ],
+    "description": "Authentication, login, password, and account access issues.",
+    "conversation_count": 237,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-006",
+    "intent_label": "Amazon Customer Contest",
+    "intent_category": "Promotions & Coupons",
+    "cluster_ids": [
+      0
+    ],
+    "keywords": [
+      "customer",
+      "amazon",
+      "contest",
+      "winners",
+      "results",
+      "winner",
+      "announced",
+      "stay",
+      "stay tuned",
+      "tuned",
+      "list",
+      "quiz"
+    ],
+    "description": "Contest, giveaway, and promotional activity questions or complaints.",
+    "conversation_count": 37,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-007",
+    "intent_label": "Customer Amazon Que",
+    "intent_category": "Technical Issue",
+    "cluster_ids": [
+      9
+    ],
+    "keywords": [
+      "customer",
+      "amazon",
+      "que",
+      "você",
+      "da",
+      "kindle",
+      "não",
+      "para",
+      "livros",
+      "com",
+      "eu",
+      "já"
+    ],
+    "description": "Product or platform technical problems and troubleshooting requests.",
+    "conversation_count": 208,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  },
+  {
+    "intent_id": "INT-008",
+    "intent_label": "Other",
+    "intent_category": "Other",
+    "cluster_ids": [],
+    "keywords": [
+      "other",
+      "uncategorized",
+      "miscellaneous"
+    ],
+    "description": "Miscellaneous or unclassified support needs.",
+    "conversation_count": 0,
+    "created_at": "2026-09-12T20:06:53.494976+00:00"
+  }
+]

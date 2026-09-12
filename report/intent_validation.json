@@ -1,0 +1,25 @@
+{
+  "overall_pass": true,
+  "checks": {
+    "missing_labels": true,
+    "duplicate_conversation_ids": true,
+    "valid_confidence": true,
+    "missing_clean_text": true,
+    "missing_categories": true,
+    "cluster_coverage": true,
+    "intent_coverage": true,
+    "empty_intents": true,
+    "unicode_integrity": true
+  },
+  "issues": [],
+  "summary": {
+    "total_rows": 10000,
+    "total_unique_conversations": 10000,
+    "total_intents": 8,
+    "total_categories": 8,
+    "average_confidence": 0.9604,
+    "missing_labels": 0,
+    "duplicate_conversation_ids": 0,
+    "empty_intents": 0
+  }
+}

@@ -65,3 +65,38 @@ This project contains the structure for an AI-powered support agent pipeline.
 
 ### Validation
 - The Phase 4 runner prints the final completion banner and exits successfully when the pipeline passes all artifact and shape checks.
+
+## Phase 5 — Golden Intent Labeling
+
+### Overview
+The Phase 5 pipeline converts the unsupervised HDBSCAN clusters from Phase 4 into a production-ready canonical intent taxonomy and a high-quality golden intent dataset for downstream RAG and support automation.
+
+### Taxonomy generation
+- Builds a canonical customer support taxonomy with intent categories and cluster-to-intent mappings.
+- Preserves cluster IDs and assigns each discovered cluster to exactly one intent.
+- Stores the taxonomy in `data/intents/intent_taxonomy.json`.
+
+### Golden intent dataset
+- Creates `data/intents/golden_intents.csv` with normalized columns for intent labeling.
+- Preserves multilingual conversation text and Unicode content.
+- Ensures no missing or duplicate conversation records and validates confidence in the range 0–1.
+
+### Validation and reporting
+- Validates label coverage, confidence ranges, empty intents, and duplicate IDs.
+- Exports `report/intent_validation.json` and `report/intent_validation_report.md`.
+- Creates summary-level analytics for representative examples and intent distributions.
+
+### Visualizations
+The Phase 5 pipeline writes high-resolution PNG artifacts to `assets/intents/`:
+- `intent_distribution.png`
+- `intent_category_distribution.png`
+- `intent_confidence_histogram.png`
+- `top_10_intents.png`
+- `language_vs_intent_heatmap.png`
+
+### Execution
+Run the Phase 5 pipeline with:
+- `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase5.py`
+- `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase5.py --force`
+
+This phase is idempotent and safe to rerun without modifying earlier phases.
