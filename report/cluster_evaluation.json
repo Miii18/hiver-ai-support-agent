@@ -1,0 +1,9 @@
+{
+  "total_conversations": 10000,
+  "noise_points": 35,
+  "noise_percentage": 0.35,
+  "number_of_clusters": 10,
+  "silhouette_score": 0.07584651559591293,
+  "davies_bouldin_index": 2.8187447039512157,
+  "calinski_harabasz_score": 206.18961414599767
+}

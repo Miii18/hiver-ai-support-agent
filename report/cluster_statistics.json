@@ -1,0 +1,21 @@
+{
+  "total_conversations": 10000,
+  "total_clusters": 10,
+  "noise_count": 35,
+  "noise_percentage": 0.35,
+  "cluster_sizes": {
+    "0": 37,
+    "1": 7583,
+    "2": 92,
+    "3": 395,
+    "4": 238,
+    "5": 570,
+    "6": 61,
+    "7": 237,
+    "8": 544,
+    "9": 208
+  },
+  "average_cluster_size": 996.5,
+  "largest_cluster": 7583,
+  "smallest_cluster": 37
+}

@@ -32,3 +32,36 @@ This project contains the structure for an AI-powered support agent pipeline.
 - Amazon message distribution
 - Conversation word distribution
 - Phase 3 EDA summary report
+
+## Phase 4 Completed ✅
+
+### Semantic Intent Discovery
+- Rebuilt the embedding pipeline and generated 10,000 sentence embeddings using the SentenceTransformers all-MiniLM-L6-v2 model.
+- Reduced the embedding space with UMAP for semantic clustering.
+- Discovered intent groups using HDBSCAN and computed cluster quality metrics.
+- Generated semantic summaries with TF-IDF keyword extraction and representative conversation examples.
+- Exported cluster statistics, evaluation artifacts, reports, and visualization outputs in reproducible form.
+
+### Generated Outputs
+- `data/embeddings/sample_sentence_embeddings.npy`
+- `data/embeddings/sample_metadata.csv`
+- `data/embeddings/embedding_info.json`
+- `data/clusters/umap_embeddings.npy`
+- `data/clusters/umap_coordinates.csv`
+- `data/clusters/hdbscan_labels.csv`
+- `data/clusters/intent_summary.csv`
+- `report/cluster_statistics.json`
+- `report/cluster_evaluation.json`
+- `report/cluster_quality_report.md`
+- `report/semantic_intent_summary.md`
+- `assets/clustering/*.png`
+- `assets/clustering/interactive_umap.html`
+
+### Run Command
+- Use the project virtual environment and run:
+  `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase4.py`
+- To regenerate artifacts use:
+  `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase4.py --force`
+
+### Validation
+- The Phase 4 runner prints the final completion banner and exits successfully when the pipeline passes all artifact and shape checks.
