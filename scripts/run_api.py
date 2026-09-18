@@ -1,10 +1,4 @@
-"""Simple runner to start the FastAPI app with uvicorn."""
-from pathlib import Path
-import uvicorn
-
-if __name__ == '__main__':
-    # run from project root
-    uvicorn.run("src.api.app:app", host="127.0.0.1", port=8000, reload=False)
+"""Run the FastAPI server for the Hiver AI Support Agent."""
 from __future__ import annotations
 
 import logging
@@ -13,21 +7,34 @@ from pathlib import Path
 
 import uvicorn
 
+# Add project root to Python path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.api.config import settings
 from src.api.app import app
+from src.api.config import settings
 
-logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
-LOGGER = logging.getLogger('run_api')
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(levelname)s] %(message)s"
+)
+
+LOGGER = logging.getLogger("run_api")
 
 
 def run() -> int:
-    LOGGER.info('Launching uvicorn for local API...')
-    uvicorn.run(app, host=settings.host, port=settings.port, log_level='info')
+    """Launch the FastAPI application with Uvicorn."""
+    LOGGER.info("Launching Hiver AI Support Agent API...")
+    uvicorn.run(
+        app,
+        host=settings.host,
+        port=settings.port,
+        log_level="info",
+        reload=False,
+    )
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(run())
