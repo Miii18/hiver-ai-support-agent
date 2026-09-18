@@ -1,0 +1,18 @@
+{
+  "examples": [
+    {
+      "query": "Where is my order?",
+      "top_k": 3
+    },
+    {
+      "query": "I want a refund",
+      "top_k": 5
+    }
+  ]
+}
+{
+  "chat_example": {
+    "query": "where is my order?",
+    "top_k": 3
+  }
+}

@@ -1,3 +1,54 @@
+# Hiver AI Support Agent — Phase 8 API
+
+## Phase 8 — FastAPI backend
+
+This repository includes a production-grade FastAPI backend for the Hiver AI Support Agent.
+
+### API Architecture
+
+```
+Client -> FastAPI (src/api/app.py) -> Chatbot dependencies (singleton)
+                |- /chat
+                |- /intents
+                |- /health
+                |- /reset
+```
+
+### Endpoints
+
+- `GET /` — API metadata
+- `GET /health` — Health and readiness
+- `GET /intents` — Canonical intents
+- `POST /chat` — Query the chatbot
+- `POST /reset` — Reset conversation memory
+
+### Example curl
+
+```bash
+curl -X POST http://127.0.0.1:8000/chat -H "Content-Type: application/json" -d '{"query":"Where is my order?","top_k":3}'
+```
+
+### Example Python
+
+```python
+import requests
+resp = requests.post('http://127.0.0.1:8000/chat', json={'query':'Where is my order?','top_k':3})
+print(resp.json())
+```
+
+### Running locally
+
+Start API:
+
+```bash
+python scripts/run_api.py
+```
+
+Run validation tests (Phase 8 automated):
+
+```bash
+python scripts/run_phase8.py
+```
 # Hiver AI Support Agent
 
 This project contains the structure for an AI-powered support agent pipeline.
@@ -142,3 +193,40 @@ The retrieval API is exposed via `src/retrieval/retriever.py` and can be queried
 - `D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/query_retriever.py`
 
 This phase is fully reusable, deterministic, and safe to rerun without altering earlier project phases.
+
+## Phase 8 — Production FastAPI Backend
+
+### Overview
+Phase 8 packages the Phase 7 retrieval-augmented chatbot into a production-style FastAPI backend. The API reuses the existing FAISS index, embeddings, intent taxonomy, and chatbot modules and exposes REST endpoints for integration with frontends or other services.
+
+### Features
+- FastAPI application with OpenAPI and ReDoc docs
+- CORS enabled for cross-origin clients
+- Endpoints: `/`, `/health`, `/intents`, `/chat`, `/reset`
+- Reuses `SupportChatbot` from `src/chatbot/chatbot.py` and the Phase 6 retriever
+- Pydantic request/response schemas and validation
+- Singleton dependency injection to reuse model and index across requests
+- Logging for startup, requests, retrieval latency, response latency, and errors
+- Automated validation tests under `tests/`
+
+### Run the API locally
+Start a local development server with Uvicorn:
+
+```powershell
+D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_api.py
+```
+
+### Run the Phase 8 validation suite
+Run the automated API validation (non-persistent server):
+
+```powershell
+D:\AI\venvs\hiver-agent\Scripts\python.exe scripts/run_phase8.py
+```
+
+If all checks pass the runner prints:
+
+# ======================================================
+PHASE 8 COMPLETED SUCCESSFULLY
+
+### API examples
+See `report/api_examples.json` for simple request examples and `report/api_validation_report.md` for the validation summary.
