@@ -1,0 +1,26 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt"
+
+[[services]]
+name = "hiver-backend"
+runtime = "python"
+startCommand = "python scripts/run_api.py"
+plan = "starter"
+region = "us-west1"
+
+[services.envVars]
+HIVER_API_HOST = "0.0.0.0"
+HIVER_API_PORT = "8000"
+
+[[services]]
+name = "hiver-frontend"
+runtime = "python"
+startCommand = "python scripts/run_streamlit.py"
+plan = "starter"
+region = "us-west1"
+
+[services.envVars]
+HIVER_API_BASE_URL = "https://hiver-backend.railway.app"
+STREAMLIT_SERVER_PORT = "8501"
+STREAMLIT_SERVER_ADDRESS = "0.0.0.0"

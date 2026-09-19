@@ -230,3 +230,277 @@ PHASE 8 COMPLETED SUCCESSFULLY
 
 ### API examples
 See `report/api_examples.json` for simple request examples and `report/api_validation_report.md` for the validation summary.
+
+---
+
+# Phase 9 — Production Frontend + Deployment Ready
+
+## Overview
+Phase 9 delivers a production-grade Streamlit frontend for the Hiver AI Support Agent, paired with Docker containerization and deployment configuration. The frontend connects to the Phase 8 FastAPI backend and provides a ChatGPT-like interface for customer support interactions.
+
+## Streamlit Frontend Features
+
+### User Interface
+- **Premium chat interface** with dark Navy/Amazon Orange theme
+- **Responsive design** optimized for desktop and mobile
+- **Gradient hero banner** welcoming users
+- **Typing animation** for live responses
+- **Confidence meter** showing model certainty with visual progress bar
+- **Intent badge** displaying detected support category
+- **Timestamp** on all messages for conversation tracking
+- **Retrieved source cards** showing knowledge base references with similarity scores
+- **Expandable retrieval details** for transparency
+
+### Sidebar
+- Hiver AI Support Agent branding
+- "New Chat" and "Clear Conversation" buttons
+- **API Status indicator** (online/offline with color-coded pills)
+- **Retriever Status** indicator
+- **Embedding Model Status** indicator
+- Live intent catalog preview (top 6 intents)
+- **Dark/Light mode toggle** for theme preference
+- About Project section
+- GitHub link placeholder
+
+### Chat Features
+- Multiple conversation turns with persistent session state
+- User and assistant chat bubbles with distinct styling
+- **Clear Conversation** to reset chat history
+- **Reset Memory** to clear chatbot backend state
+- **Export Chat** to plain text for records
+- Graceful error handling with friendly error messages
+- API timeout handling with retry logic
+
+## Architecture
+
+### Component Structure
+```
+src/ui/
+├── __init__.py           # Package initialization
+├── streamlit_app.py      # Main Streamlit application entry point
+├── api_client.py         # FastAPI backend HTTP client with retry logic
+├── components.py         # Reusable UI components (bubbles, cards, badges)
+└── theme.py              # Dark/Light theme CSS and Streamlit styling
+
+scripts/
+├── run_streamlit.py      # Streamlit launcher script (port 8501)
+└── run_api.py            # FastAPI launcher (port 8000, from Phase 8)
+```
+
+### Reusable Components
+- `status_pill()` — Status badges (green/red for API state)
+- `intent_badge()` — Display detected support intent
+- `confidence_meter()` — Visual confidence progress bar
+- `render_chat_bubble()` — User/assistant message bubbles with timestamps
+- `render_source_card()` — Knowledge base reference cards
+- `render_sources()` — Collection of retrieved sources
+
+### API Client
+- `health_check()` — Verify backend availability
+- `fetch_intents()` — Load canonical intent taxonomy
+- `chat()` — Send query and receive response with confidence/intent/sources
+- `reset_memory()` — Clear conversation memory on backend
+- Timeout handling (20s default)
+- Graceful error handling with fallback messages
+- Support for `HIVER_API_BASE_URL` environment variable
+
+## Docker Setup
+
+### Backend Dockerfile (`docker/Dockerfile.backend`)
+- Python 3.11 slim base
+- Installs requirements from `requirements.txt`
+- Exposes port 8000
+- Runs `python scripts/run_api.py` with Uvicorn
+
+### Frontend Dockerfile (`docker/Dockerfile.frontend`)
+- Python 3.11 slim base
+- Installs requirements + Streamlit
+- Exposes port 8501
+- Runs `python scripts/run_streamlit.py`
+
+### Docker Compose (`docker/docker-compose.yml`)
+Orchestrates both services:
+- Backend service on port 8000
+- Frontend service on port 8501
+- Frontend depends on backend
+- Network communication between containers
+- Environment variables for service discovery
+
+### .dockerignore
+Excludes unnecessary files from Docker build context (caches, data, notebooks, assets).
+
+## Deployment Guides
+
+### Render Deployment (`deployment/render.yaml`)
+- Free-tier configuration for both backend and frontend
+- Oregon region default
+- Health check endpoint for backend (`/health`)
+- Environment variables:
+  - `HIVER_API_HOST=0.0.0.0`
+  - `HIVER_API_PORT=8000`
+  - `HIVER_API_BASE_URL=https://hiver-backend.onrender.com` (frontend)
+
+### Railway Deployment (`deployment/railway.toml`)
+- Git push-based deployment
+- Python 3.11 runtime
+- Backend build command: `pip install -r requirements.txt`
+- Frontend build command: `pip install -r requirements.txt streamlit`
+- US-West1 region
+- Environment variables for service URLs and Streamlit config
+
+## Local Installation
+
+### Prerequisites
+- Python 3.11+
+- pip or conda
+- Virtual environment (recommended)
+
+### Setup
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Verify imports
+python -c "import streamlit; import requests; print('OK')"
+```
+
+### Running Backend
+```bash
+python scripts/run_api.py
+# FastAPI available at http://127.0.0.1:8000
+# OpenAPI docs at http://127.0.0.1:8000/docs
+```
+
+### Running Frontend
+In a new terminal:
+```bash
+python scripts/run_streamlit.py
+# Streamlit available at http://127.0.0.1:8501
+```
+
+### Testing Both Services
+```bash
+# Start API in one terminal
+python scripts/run_api.py
+
+# Start frontend in another terminal
+python scripts/run_streamlit.py
+
+# Then visit http://127.0.0.1:8501 in browser
+```
+
+## Docker Usage
+
+### Build Images
+```bash
+docker build -f docker/Dockerfile.backend -t hiver-backend .
+docker build -f docker/Dockerfile.frontend -t hiver-frontend .
+```
+
+### Run with Docker Compose
+```bash
+cd docker
+docker-compose up --build
+# Backend: http://127.0.0.1:8000
+# Frontend: http://127.0.0.1:8501
+```
+
+## Folder Structure
+```
+hiver-ai-support-agent/
+├── src/ui/                    # Streamlit frontend
+│   ├── __init__.py
+│   ├── streamlit_app.py
+│   ├── api_client.py
+│   ├── components.py
+│   └── theme.py
+├── scripts/
+│   ├── run_api.py            # Phase 8 FastAPI launcher
+│   ├── run_streamlit.py      # Phase 9 Streamlit launcher
+│   └── run_phase9.py         # Phase 9 validation
+├── docker/
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend
+│   ├── docker-compose.yml
+│   └── .dockerignore
+├── deployment/
+│   ├── render.yaml
+│   └── railway.toml
+├── tests/
+│   └── test_phase9_outputs.py
+├── assets/ui/
+│   ├── architecture.svg
+│   ├── deployment.svg
+│   └── generate_diagrams.py
+├── requirements.txt
+└── README.md (this file)
+```
+
+## API Endpoints (Backend)
+
+Phase 9 frontend connects to these Phase 8 endpoints:
+
+- `GET /health` — API health and readiness status
+- `GET /intents` — Canonical intent taxonomy
+- `POST /chat` — Query support agent (request: `{"query":"...", "top_k":5}`)
+- `POST /reset` — Clear conversation memory
+
+## Running Phase 9 Validation
+
+Validate all Phase 9 components:
+```bash
+python scripts/run_phase9.py
+```
+
+Expected output on success:
+```
+======================================================
+PHASE 9 COMPLETED SUCCESSFULLY
+
+PASS / FAIL TABLE
+
+Frontend ............ PASS
+API Client .......... PASS
+Components .......... PASS
+Docker .............. PASS
+Deployment .......... PASS
+Assets .............. PASS
+README .............. PASS
+Tests ............... PASS
+
+Validation summary: PASS
+======================================================
+```
+
+## Dependencies
+
+Phase 9 requires:
+- `streamlit==1.28.1` — Web framework
+- `requests==2.31.0` — HTTP client
+- `pillow==10.0.1` — Image processing (for future assets)
+- `pyyaml==6.0.1` — YAML parsing (deployment configs)
+- `tomli==2.0.1` — TOML parsing (Railway config)
+- `pytest==7.4.2` — Testing
+
+Plus Phase 8 backend dependencies (see `requirements.txt`).
+
+## Architecture Diagrams
+
+Generated SVG diagrams in `assets/ui/`:
+- `architecture.svg` — Component flow: Streamlit → FastAPI → Retriever → FAISS
+- `deployment.svg` — Deployment architectures: Docker Compose, Render, Railway
+
+## Screenshots
+
+Screenshots placeholder. Generate with:
+```bash
+python assets/ui/generate_diagrams.py
+```
+
+## Notes
+
+- Frontend and backend can run independently or together
+- Docker Compose automatically configures networking
+- All endpoints support CORS from Streamlit frontend
+- Deployment configs are deployment-ready (no manual deployment required)
+- Phase 9 is production-ready and fully tested

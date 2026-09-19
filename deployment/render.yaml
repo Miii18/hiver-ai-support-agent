@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: hiver-backend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python scripts/run_api.py"
+    healthCheckPath: "/health"
+    envVars:
+      - key: HIVER_API_HOST
+        value: "0.0.0.0"
+      - key: HIVER_API_PORT
+        value: "8000"
+
+  - type: web
+    name: hiver-frontend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: "pip install -r requirements.txt streamlit"
+    startCommand: "python scripts/run_streamlit.py"
+    envVars:
+      - key: HIVER_API_BASE_URL
+        value: "https://hiver-backend.onrender.com"
