@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .panel { fill: #121c2b; stroke: #ff9900; stroke-width: 1; }
+      .text { fill: #eaf2ff; font-family: sans-serif; }
+      .muted { fill: #9db0c9; }
+      .accent { fill: #ff9900; }
+      .user-bubble { fill: rgba(255, 153, 0, 0.15); stroke: rgba(255, 153, 0, 0.28); stroke-width: 1; }
+      .ai-bubble { fill: rgba(148, 163, 184, 0.08); stroke: rgba(148, 163, 184, 0.18); stroke-width: 1; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" class="bg"/>
+
+  <!-- Header -->
+  <rect width="1200" height="60" class="panel"/>
+  <text x="30" y="40" class="text" style="font-size: 20px; font-weight: bold;">Hiver AI Support Agent</text>
+
+  <!-- Main content area -->
+  <g id="chat-area">
+    <!-- Welcome banner -->
+    <rect x="50" y="90" width="900" height="80" rx="12" fill="url(#gradient)"/>
+    <defs>
+      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#ff9900;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#ffb347;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <text x="60" y="125" style="font-size: 18px; font-weight: bold; fill: #111827;">Welcome to Hiver AI Support Agent</text>
+    <text x="60" y="155" style="font-size: 14px; fill: #111827;">Your production AI customer support assistant is live.</text>
+
+    <!-- AI welcome message -->
+    <rect x="50" y="200" width="700" height="60" rx="8" class="ai-bubble"/>
+    <text x="65" y="220" class="muted" style="font-size: 11px;">ASSISTANT · 14:32</text>
+    <text x="65" y="245" class="text" style="font-size: 13px;">Hi! I'm Hiver AI Support Agent. Ask me anything about orders, returns, delivery, or account issues.</text>
+
+    <!-- User message 1 -->
+    <rect x="550" y="290" width="400" height="50" rx="8" class="user-bubble"/>
+    <text x="565" y="310" class="muted" style="font-size: 11px;">USER · 14:33</text>
+    <text x="565" y="325" class="text" style="font-size: 13px;">Where is my order #12345?</text>
+
+    <!-- AI response 1 -->
+    <rect x="50" y="370" width="700" height="100" rx="8" class="ai-bubble"/>
+    <text x="65" y="390" class="muted" style="font-size: 11px;">ASSISTANT · 14:33</text>
+    <text x="65" y="410" class="text" style="font-size: 13px;">Your order #12345 is currently in transit.</text>
+    <text x="65" y="430" class="text" style="font-size: 13px;">Expected delivery: September 22, 2026.</text>
+    <text x="65" y="450" class="text" style="font-size: 13px;">Track your package at any time on our website.</text>
+
+    <!-- Intent badge and confidence -->
+    <rect x="50" y="485" width="700" height="50" rx="8" class="panel"/>
+    <text x="65" y="505" style="font-size: 12px; font-weight: bold;" class="accent">Intent: Order Status</text>
+    <text x="65" y="525" class="muted" style="font-size: 11px;">Confidence: 94%</text>
+
+    <!-- Source card -->
+    <rect x="50" y="550" width="700" height="60" rx="8" fill="rgba(255,153,0,0.06)" stroke="rgba(255,153,0,0.25)" stroke-width="1"/>
+    <text x="65" y="570" style="font-size: 12px; font-weight: bold;" class="text">Retrieved from: Conversation #5829</text>
+    <text x="65" y="590" class="muted" style="font-size: 11px;">Similarity: 0.92</text>
+  </g>
+
+  <!-- Sidebar -->
+  <g id="sidebar">
+    <rect x="1000" y="60" width="200" height="740" class="panel"/>
+
+    <!-- Sidebar header -->
+    <text x="1020" y="100" style="font-size: 14px; font-weight: bold;" class="text">Phase: 9</text>
+
+    <!-- Status indicators -->
+    <circle cx="1010" cy="140" r="4" fill="#2ecc71"/>
+    <text x="1025" y="145" class="text" style="font-size: 12px;">API online</text>
+
+    <circle cx="1010" cy="170" r="4" fill="#2ecc71"/>
+    <text x="1025" y="175" class="text" style="font-size: 12px;">Retriever loaded</text>
+
+    <!-- Intent list -->
+    <text x="1020" y="220" style="font-size: 12px; font-weight: bold;" class="accent">Live intents:</text>
+    <text x="1025" y="245" class="muted" style="font-size: 11px;">• Order Status</text>
+    <text x="1025" y="265" class="muted" style="font-size: 11px;">• Returns</text>
+    <text x="1025" y="285" class="muted" style="font-size: 11px;">• Delivery</text>
+    <text x="1025" y="305" class="muted" style="font-size: 11px;">• Refunds</text>
+    <text x="1025" y="325" class="muted" style="font-size: 11px;">• Account</text>
+    <text x="1025" y="345" class="muted" style="font-size: 11px;">• General</text>
+
+    <!-- Buttons -->
+    <rect x="1010" y="380" width="180" height="35" rx="8" fill="url(#gradient)"/>
+    <text x="1100" y="405" style="font-size: 12px; font-weight: bold; text-anchor: middle; fill: #111827;">New Chat</text>
+
+    <rect x="1010" y="430" width="180" height="35" rx="8" fill="rgba(255,153,0,0.08)" stroke="rgba(255,153,0,0.45)" stroke-width="1"/>
+    <text x="1100" y="455" style="font-size: 12px; font-weight: bold; text-anchor: middle;" class="accent">Clear</text>
+
+    <!-- Footer -->
+    <text x="1020" y="730" style="font-size: 10px;" class="muted">Dark mode</text>
+    <rect x="1020" y="735" width="30" height="15" rx="7" fill="rgba(255,153,0,0.2)"/>
+  </g>
+
+  <!-- Chat input area -->
+  <rect x="50" y="730" width="900" height="40" rx="8" fill="rgba(18, 28, 43, 0.8)" stroke="rgba(255,153,0,0.2)" stroke-width="1"/>
+  <text x="65" y="755" class="muted" style="font-size: 12px;">Ask Hiver about an order, refund, delivery...</text>
+</svg>
