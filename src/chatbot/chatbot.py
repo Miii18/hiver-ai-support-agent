@@ -9,6 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.chatbot.greeting_handler import GreetingHandler
 from src.chatbot.improved_intent_classifier import ImprovedIntentClassifier
+from src.chatbot.intelligence_handler import IntelligenceHandler
 from src.chatbot.memory import ConversationMemory
 from src.chatbot.prompt_builder import PromptBuilder
 from src.chatbot.query_classifier import QueryClassifier
@@ -27,6 +28,7 @@ class SupportChatbot:
         self.improved_classifier = ImprovedIntentClassifier()
         self.prompt_builder = PromptBuilder()
         self.greeting_handler = GreetingHandler()
+        self.intelligence_handler = IntelligenceHandler()
 
     def _grounded_answer(self, query: str, context: list[dict]) -> str:
         if not context:
@@ -46,7 +48,86 @@ class SupportChatbot:
 
     def answer_query(self, query: str) -> dict:
         """Answer user query with greeting detection and improved intent classification."""
-        # Check for greeting or casual conversation first
+        # Check for meta queries (AI identity, capabilities, knowledge base, etc.) first
+        if IntelligenceHandler.detect_ai_identity(query):
+            answer = IntelligenceHandler.get_identity_response()
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer)
+            return ResponseFormatter.format_response(
+                answer=answer,
+                intent_label='System Info',
+                intent_category='System Info',
+                confidence=1.0,
+                context=[],
+            )
+
+        if IntelligenceHandler.detect_capability_query(query):
+            answer = IntelligenceHandler.get_capability_response()
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer)
+            return ResponseFormatter.format_response(
+                answer=answer,
+                intent_label='System Info',
+                intent_category='System Info',
+                confidence=1.0,
+                context=[],
+            )
+
+        if IntelligenceHandler.detect_knowledge_base_query(query):
+            answer = IntelligenceHandler.get_knowledge_base_response()
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer)
+            return ResponseFormatter.format_response(
+                answer=answer,
+                intent_label='System Info',
+                intent_category='System Info',
+                confidence=1.0,
+                context=[],
+            )
+
+        if IntelligenceHandler.detect_confidence_query(query):
+            answer = IntelligenceHandler.get_confidence_response()
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer)
+            return ResponseFormatter.format_response(
+                answer=answer,
+                intent_label='System Info',
+                intent_category='System Info',
+                confidence=1.0,
+                context=[],
+            )
+
+        if IntelligenceHandler.detect_sources_query(query):
+            # Get most recent sources from memory
+            recent_sources = []
+            for turn in reversed(self.memory.get_history()):
+                if turn.get('role') == 'assistant' and turn.get('sources'):
+                    recent_sources = turn.get('sources', [])
+                    break
+            answer = IntelligenceHandler.format_sources_response(recent_sources)
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer)
+            return ResponseFormatter.format_response(
+                answer=answer,
+                intent_label='System Info',
+                intent_category='System Info',
+                confidence=1.0,
+                context=recent_sources,
+            )
+
+        if IntelligenceHandler.detect_out_of_scope(query):
+            answer = IntelligenceHandler.get_out_of_scope_response()
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer)
+            return ResponseFormatter.format_response(
+                answer=answer,
+                intent_label='Out of Scope',
+                intent_category='Out of Scope',
+                confidence=1.0,
+                context=[],
+            )
+
+        # Check for greeting or casual conversation
         greeting_response = self.greeting_handler.get_greeting_response(query)
         if greeting_response:
             self.memory.add_turn('user', query)
