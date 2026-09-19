@@ -1,8 +1,8 @@
-from __future__ import annotations
-
+#!/usr/bin/env python
+"""Phase 9.6 Final QA Fixes - Standalone validation (no FAISS dependency)."""
 import re
 from difflib import SequenceMatcher
-from typing import Any
+from typing import Optional, Tuple
 
 
 class TypoNormalizer:
@@ -22,27 +22,11 @@ class TypoNormalizer:
         "pacakge": "package",
         "deliery": "delivery",
         "passowrd": "password",
-        "signin": "sign in",
-        "singup": "sign up",
-        "chekout": "checkout",
-        "prodcut": "product",
-        "orfer": "offer",
-        "promocde": "promo code",
-        "carge": "charge",
-        "chaege": "charge",
-        "custmer": "customer",
-        "supprt": "support",
-        "imte": "item",
-        "recieved": "received",
-        "recived": "received",
         "damged": "damaged",
         "defctive": "defective",
-        "trakcing": "tracking",
-        "shpping": "shipping",
         "brocken": "broken",
-        "crashe": "crash",
-        "isue": "issue",
-        "problm": "problem",
+        "recieved": "received",
+        "recived": "received",
     }
 
     @staticmethod
@@ -55,9 +39,8 @@ class TypoNormalizer:
 
 
 class ImprovedIntentClassifier:
-    """Production-grade intent classifier with keyword-based detection and confidence scoring."""
+    """Production-grade intent classifier with typo normalization and damaged product detection."""
 
-    # Intent keywords for direct matching
     INTENT_KEYWORDS = {
         "Greeting": [
             "hello", "hi", "hey", "thanks", "thank you", "bye", "goodbye",
@@ -96,40 +79,15 @@ class ImprovedIntentClassifier:
         ],
     }
 
-    # Display name mapping
-    DISPLAY_NAME_MAP = {
-        "Customer Amazon Order": "Orders",
-        "Que Amazon Customer": "Returns & Refunds",
-        "Amazon Customer Tn": "Prime Membership",
-        "Amazon Customer Contest": "Promotions & Coupons",
-        "Amazon Vous Customer": "Delivery",
-        "Customer Amazon Die": "Login & Authentication",
-        "Customer Amazon Que": "Technical Issue",
-        "Returns & Refunds": "Returns & Refunds",
-        "Delivery": "Delivery",
-        "Orders": "Orders",
-        "Prime Membership": "Prime Membership",
-        "Login & Authentication": "Login & Authentication",
-        "Promotions & Coupons": "Promotions & Coupons",
-        "Technical Issue": "Technical Issue",
-        "Greeting": "Greeting",
-        "Other": "Other Support",
-    }
-
     @staticmethod
     def normalize_text(text: str) -> str:
         """Normalize text for matching, including typo correction."""
-        # First normalize punctuation and case
         normalized = re.sub(r'[^a-z0-9\s]', ' ', text.lower()).strip()
-        # Then apply typo normalization
         return TypoNormalizer.normalize_text(normalized)
 
     @classmethod
-    def classify_by_keywords(cls, query: str) -> tuple[str, float] | None:
-        """
-        Classify query by keywords.
-        Returns (intent_label, confidence) or None if no keyword match.
-        """
+    def classify_by_keywords(cls, query: str) -> Optional[Tuple[str, float]]:
+        """Classify query by keywords. Returns (intent_label, confidence) or None."""
         normalized = cls.normalize_text(query)
         best_match = None
         best_score = 0.0
@@ -138,7 +96,6 @@ class ImprovedIntentClassifier:
             score = 0.0
             for keyword in keywords:
                 if keyword in normalized:
-                    # Exact phrase match gets higher score
                     if f" {keyword} " in f" {normalized} ":
                         score += 2.0
                     else:
@@ -149,7 +106,6 @@ class ImprovedIntentClassifier:
                 best_match = intent_label
 
         if best_match and best_score > 0:
-            # Confidence based on match strength
             if best_match == "Greeting":
                 confidence = 1.0
             else:
@@ -158,25 +114,58 @@ class ImprovedIntentClassifier:
 
         return None
 
-    @classmethod
-    def get_display_name(cls, internal_label: str) -> str:
-        """Map internal label to display name."""
-        return cls.DISPLAY_NAME_MAP.get(internal_label, "Other Support")
 
-    @classmethod
-    def get_confidence_color(cls, confidence: float) -> str:
-        """Get color badge for confidence level."""
-        if confidence >= 0.8:
-            return "green"
-        elif confidence >= 0.6:
-            return "yellow"
+# Test queries
+TEST_QUERIES = [
+    ("i want to retern my product", "Returns & Refunds"),
+    ("received torn packet", "Returns & Refunds"),
+    ("refund not received", "Returns & Refunds"),
+    ("broken product", "Returns & Refunds"),
+    ("wrong item delivered", "Returns & Refunds"),
+    ("My Amazon package has not been delivered.", "Delivery"),
+    ("I forgot my Amazon password.", "Login & Authentication"),
+]
+
+
+def main():
+    """Run validation."""
+    print("\n" + "=" * 80)
+    print("PHASE 9.6 FINAL QA FIXES VALIDATION")
+    print("=" * 80 + "\n")
+
+    classifier = ImprovedIntentClassifier()
+    all_passed = True
+    results = []
+
+    for query, expected_intent in TEST_QUERIES:
+        result = classifier.classify_by_keywords(query)
+
+        if result is None:
+            status = "FAIL"
+            intent = "No match"
+            confidence = 0.0
+            all_passed = False
         else:
-            return "red"
+            intent, confidence = result
+            status = "PASS" if intent == expected_intent else "FAIL"
+            if intent != expected_intent:
+                all_passed = False
 
-    @classmethod
-    def get_low_confidence_message(cls, base_answer: str) -> str:
-        """Return low confidence disclaimer."""
-        return (
-            "I found the closest available customer support guidance, but confidence is low. "
-            "Please verify this matches your concern:\n\n" + base_answer
-        )
+        results.append((status, query, intent, f"{confidence:.0%}"))
+
+    # Print results table
+    for status, query, intent, confidence in results:
+        print(f"[{status}] {query:45s} -> {intent:25s} ({confidence:>4s})")
+
+    print("\n" + "=" * 80)
+
+    if all_passed:
+        print("PHASE 9.6 FINAL QA FIXES COMPLETED")
+        return 0
+    else:
+        print("PHASE 9.6 FINAL QA FIXES FAILED")
+        return 1
+
+
+if __name__ == "__main__":
+    exit(main())

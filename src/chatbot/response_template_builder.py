@@ -8,7 +8,7 @@ class ResponseTemplateBuilder:
 
     INTENT_TEMPLATES = {
         "Returns & Refunds": {
-            "intro": "Regarding your refund or return request:",
+            "intro": "It looks like you want to return or refund an item.",
             "details": [
                 "Check your refund status in your account under 'Returns'",
                 "Returns typically take 5-7 business days to process",
@@ -22,7 +22,7 @@ class ResponseTemplateBuilder:
             "escalation": "If your refund isn't processed within the expected timeframe, contact support.",
         },
         "Delivery": {
-            "intro": "Regarding your delivery concern:",
+            "intro": "It looks like you're experiencing a delivery issue.",
             "details": [
                 "You can track your package in real-time with the tracking number",
                 "Most deliveries arrive within the estimated date range",
@@ -36,7 +36,7 @@ class ResponseTemplateBuilder:
             "escalation": "If your package doesn't arrive by the promised date, we can help.",
         },
         "Orders": {
-            "intro": "Regarding your order:",
+            "intro": "Here's guidance for your Amazon order.",
             "details": [
                 "You can check your order status in 'Your Orders'",
                 "Processing typically takes 1-2 hours after placement",
@@ -50,7 +50,7 @@ class ResponseTemplateBuilder:
             "escalation": "Contact support if you need to modify or cancel your order urgently.",
         },
         "Prime Membership": {
-            "intro": "Regarding your Prime membership:",
+            "intro": "Here's guidance for your Prime membership.",
             "details": [
                 "Prime membership costs $14.99/month or $139/year",
                 "You get free 2-day shipping, Prime Video, and more",
@@ -64,7 +64,7 @@ class ResponseTemplateBuilder:
             "escalation": "If you have billing questions, we can help clarify.",
         },
         "Login & Authentication": {
-            "intro": "Regarding your login or account access issue:",
+            "intro": "Let's help you recover your Amazon account.",
             "details": [
                 "Password resets are instant and sent to your email",
                 "Two-factor authentication provides extra security",
@@ -78,7 +78,7 @@ class ResponseTemplateBuilder:
             "escalation": "If you don't receive the reset email, check spam folder or contact support.",
         },
         "Promotions & Coupons": {
-            "intro": "Regarding promo codes or coupons:",
+            "intro": "Let's troubleshoot your coupon or promotional offer.",
             "details": [
                 "Coupons must be applied at checkout before purchase",
                 "Some coupons are category-specific and have restrictions",
@@ -92,7 +92,7 @@ class ResponseTemplateBuilder:
             "escalation": "Contact support if you believe the code should work.",
         },
         "Technical Issue": {
-            "intro": "Regarding a technical issue:",
+            "intro": "It looks like you're experiencing a technical issue.",
             "details": [
                 "Try clearing browser cache and cookies first",
                 "Update to the latest version of the app",
