@@ -4,13 +4,25 @@ import streamlit as st
 
 
 def apply_theme(use_dark: bool = True) -> None:
-    """Apply polished dark/light branding to the Streamlit app."""
-    accent = "#ff9900" if use_dark else "#ff7a00"
-    bg = "#0b1220" if use_dark else "#f5f7fb"
-    panel = "#121c2b" if use_dark else "#ffffff"
-    text = "#eaf2ff" if use_dark else "#17212b"
-    muted = "#9db0c9" if use_dark else "#53657d"
-    border = "rgba(255,255,255,0.08)" if use_dark else "rgba(23,33,43,0.08)"
+    """Apply production SaaS styling to the Streamlit app."""
+    if use_dark:
+        bg = "#0f1419"
+        panel = "#1a1f2e"
+        text = "#f0f4f8"
+        muted = "#8b95a5"
+        accent = "#2563eb"
+        accent_light = "#3b82f6"
+        success = "#10b981"
+        border = "rgba(255,255,255,0.06)"
+    else:
+        bg = "#ffffff"
+        panel = "#f9fafb"
+        text = "#1f2937"
+        muted = "#6b7280"
+        accent = "#2563eb"
+        accent_light = "#3b82f6"
+        success = "#10b981"
+        border = "rgba(0,0,0,0.08)"
 
     st.markdown(
         f"""
@@ -21,6 +33,8 @@ def apply_theme(use_dark: bool = True) -> None:
             --text: {text};
             --muted: {muted};
             --accent: {accent};
+            --accent-light: {accent_light};
+            --success: {success};
             --border: {border};
         }}
         html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {{
@@ -28,77 +42,145 @@ def apply_theme(use_dark: bool = True) -> None:
             color: var(--text);
         }}
         .block-container {{
-            padding-top: 1rem;
-            padding-bottom: 1rem;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
         }}
         .stApp {{
-            background: linear-gradient(180deg, rgba(255,153,0,0.08), transparent 25%), var(--bg);
+            background: var(--bg);
         }}
         .card {{
             background: var(--panel);
             border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 1rem 1.1rem;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }}
-        .welcome-banner {{
-            background: linear-gradient(135deg, #ff9900, #ffb347);
-            border-radius: 20px;
-            padding: 1.25rem 1.5rem;
-            color: #111827;
-            font-weight: 700;
-            box-shadow: 0 12px 30px rgba(255,153,0,0.22);
+        .status-card {{
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }}
-        .status-pill {{
-            display: inline-block;
-            background: rgba(255,153,0,0.16);
-            color: var(--accent);
-            border: 1px solid rgba(255,153,0,0.45);
-            border-radius: 999px;
+        .status-header {{
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }}
+        .status-item {{
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+        }}
+        .status-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 6px;
             padding: 0.35rem 0.75rem;
-            font-size: 0.72rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: auto;
+        }}
+        .status-badge.offline {{
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+            border-color: rgba(239,68,68,0.3);
+        }}
+        .dot {{
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 0.4rem;
+        }}
+        .dot.offline {{
+            background: #ef4444;
+        }}
+        .header-banner {{
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(37,99,235,0.15);
+        }}
+        .header-banner h1 {{
+            margin: 0;
+            font-size: 1.75rem;
             font-weight: 700;
+        }}
+        .header-banner p {{
+            margin: 0.5rem 0 0 0;
+            font-size: 0.95rem;
+            opacity: 0.95;
         }}
         .source-card {{
-            background: rgba(255,153,0,0.06);
-            border: 1px solid rgba(255,153,0,0.25);
-            border-radius: 14px;
-            padding: 0.8rem 0.9rem;
+            background: rgba(37,99,235,0.05);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 10px;
+            padding: 0.9rem;
             margin-top: 0.5rem;
         }}
         .chat-message-user {{
-            background: rgba(255,153,0,0.15);
-            border: 1px solid rgba(255,153,0,0.28);
-            border-radius: 0.8rem;
-            padding: 0.75rem 0.85rem;
+            background: rgba(37,99,235,0.1);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 10px;
+            padding: 0.9rem;
         }}
         .chat-message-assistant {{
-            background: rgba(148,163,184,0.08);
-            border: 1px solid rgba(148,163,184,0.18);
-            border-radius: 0.8rem;
-            padding: 0.75rem 0.85rem;
-        }}
-        .metric-box {{
-            background: rgba(255,255,255,0.02);
+            background: var(--panel);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.8rem;
+            border-radius: 10px;
+            padding: 0.9rem;
         }}
-        .stSidebar {{
-            background: rgba(12,18,26,0.9);
+        .confidence-bar {{
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }}
+        .confidence-fill {{
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 999px;
+        }}
+        .intent-badge {{
+            display: inline-block;
+            background: rgba(37,99,235,0.1);
+            color: var(--accent);
+            border: 1px solid rgba(37,99,235,0.3);
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
         }}
         .stButton > button {{
-            border-radius: 12px;
+            border-radius: 8px;
             border: none;
-            background: linear-gradient(135deg, #ff9900, #ffb347);
-            color: #111827;
-            font-weight: 700;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            height: 2.5rem;
         }}
-        div[data-testid="stDownloadButton"] > button {{
-            border-radius: 12px;
-            border: none;
-            background: rgba(255,153,0,0.08);
-            color: var(--text);
+        .stButton > button:hover {{
+            background: var(--accent-light);
+        }}
+        .stSidebar {{
+            background: var(--panel);
+        }}
+        .stSidebar [data-testid="stSidebar"] {{
+            background: var(--panel);
         }}
         </style>
         """,

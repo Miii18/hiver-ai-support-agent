@@ -1,0 +1,11 @@
+cluster_id,intent_label,top_keywords,conversation_count,confidence
+0,Amazon Customer Contest,"customer, amazon, contest, winners, results, winner, announced, stay, stay tuned, tuned, list, quiz, kindly, result, contests, iphone, amazon winners, sorry, working, contest winners",37,0.1746
+1,Customer Amazon Order,"customer, amazon, order, delivery, sorry, amazon sorry, help, details, like, ll, prime, look, know, time, team, account, delivered, don, ve, day",7583,0.1599
+2,Amazon Customer Di,"amazon, customer, di, il, non, che, la, mi, da, grazie, ma, ordine, servizio, se, qui, ho, nostro, consegna, clienti, servizio clienti",92,0.1967
+3,Amazon Vous Customer,"amazon, vous, customer, je, le, est, la, que, pour, en, pas, votre, bonjour, et, il, merci, colis, livraison, une, amazon bonjour",395,0.2056
+4,Amazon Customer Tn,"amazon, customer, tn, hm, et, sm, ym, ri, ありがとうございます, sk, なお, 恐れ入りますが, ek, どうぞよろしくお願いいたします, ty, mh, et customer, ご迷惑をおかけしております, sm customer, ご心配をおかけしております",238,0.1403
+5,Amazon Customer Tn,"amazon, customer, tn, sk, ri, et, ek, mh, ym, ありがとうございます, oo, sm, ty, hm, amazonです, customer amazon, ご心配をおかけしております, amazon oo, amazon ご心配をおかけしております, アマゾンです",570,0.1213
+6,Customer Amazon Ich,"customer, amazon, ich, das, die, nicht, und, ist, es, der, du, den, bei, noch, kann, wird, auch, dich, wir, eine",61,0.2193
+7,Customer Amazon Die,"customer, amazon, die, ich, nicht, das, ist, es, der, und, bei, für, du, bitte, wir, danke, auf, noch, mit, mal",237,0.1669
+8,Que Amazon Customer,"que, amazon, customer, el, en, la, por, para, hola, lo, es, amazon hola, pedido, al, ya, te, tu, si, mi, se",544,0.1987
+9,Customer Amazon Que,"customer, amazon, que, você, da, kindle, não, para, livros, com, eu, já, olá, amazon olá, em, livro, na, cr, muito, seu",208,0.1705

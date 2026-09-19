@@ -1,0 +1,17 @@
+
+================================================================================
+PHASE 9 POLISH VALIDATION
+================================================================================
+
+[PASS] Hello                                              -> Greeting                  (100%) [green]
+[PASS] Thanks                                             -> Greeting                  (100%) [green]
+[PASS] Bye                                                -> Greeting                  (100%) [green]
+[PASS] My Amazon package has not been delivered.          -> Delivery                  (100%) [green]
+[PASS] I want a refund for my order.                      -> Returns & Refunds         (100%) [green]
+[PASS] Cancel my Prime membership.                        -> Prime Membership          (100%) [green]
+[PASS] I forgot my Amazon password.                       -> Login & Authentication    (100%) [green]
+[PASS] Coupon code is not working.                        -> Promotions & Coupons      (100%) [green]
+[PASS] Amazon app crashes every time I open it.           -> Technical Issue           (100%) [green]
+
+================================================================================
+PHASE 9 POLISH VALIDATION PASSED
