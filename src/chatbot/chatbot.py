@@ -7,10 +7,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.chatbot.greeting_handler import GreetingHandler
+from src.chatbot.improved_intent_classifier import ImprovedIntentClassifier
 from src.chatbot.memory import ConversationMemory
 from src.chatbot.prompt_builder import PromptBuilder
 from src.chatbot.query_classifier import QueryClassifier
 from src.chatbot.response_formatter import ResponseFormatter
+from src.chatbot.response_template_builder import ResponseTemplateBuilder
 from src.retrieval.retriever import retrieve
 
 
@@ -21,7 +24,9 @@ class SupportChatbot:
         self.top_k = top_k
         self.memory = ConversationMemory(max_turns=memory_limit)
         self.classifier = QueryClassifier()
+        self.improved_classifier = ImprovedIntentClassifier()
         self.prompt_builder = PromptBuilder()
+        self.greeting_handler = GreetingHandler()
 
     def _grounded_answer(self, query: str, context: list[dict]) -> str:
         if not context:
@@ -40,7 +45,31 @@ class SupportChatbot:
         return 'I found similar customer support guidance and recommend checking the shipping status, confirming the order details, and escalating if the issue persists.'
 
     def answer_query(self, query: str) -> dict:
-        intent = self.classifier.classify(query)
+        """Answer user query with greeting detection and improved intent classification."""
+        # Check for greeting or casual conversation first
+        greeting_response = self.greeting_handler.get_greeting_response(query)
+        if greeting_response:
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', greeting_response['answer'])
+            return greeting_response
+
+        # Try improved keyword-based intent classification first
+        keyword_result = self.improved_classifier.classify_by_keywords(query)
+        intent_label = None
+        confidence = None
+
+        if keyword_result:
+            intent_label, confidence = keyword_result
+        else:
+            # Fallback to existing retrieval classifier
+            intent = self.classifier.classify(query)
+            intent_label = str(intent['intent_label'])
+            confidence = float(intent['confidence'])
+
+        # Get display name for intent
+        display_name = self.improved_classifier.get_display_name(intent_label)
+
+        # Retrieve context from FAISS
         retrieved = retrieve(str(query), top_k=self.top_k)
         context_rows = []
         for _, row in retrieved.iterrows():
@@ -48,27 +77,32 @@ class SupportChatbot:
                 'conversation_id': row.get('conversation_id', ''),
                 'customer_query': row.get('customer_query', ''),
                 'amazon_response': row.get('amazon_response', ''),
-                'intent_label': row.get('intent_label', intent['intent_label']),
+                'intent_label': row.get('intent_label', intent_label),
                 'similarity_score': float(row.get('similarity_score', 0.0)),
             })
 
-        memory_context = self.memory.get_recent_context()
-        memory_summary = ' | '.join(f"{entry['role']}: {entry['content']}" for entry in memory_context)
-        prompt = self.prompt_builder.build_prompt(
-            query=query,
+        # Build response using template
+        base_answer = self._grounded_answer(query, context_rows)
+
+        # Apply response template for better structure
+        answer = ResponseTemplateBuilder.build_response(
+            intent=display_name,
+            base_answer=base_answer,
             context=context_rows,
-            intent_label=str(intent['intent_label']),
-            memory_context=memory_summary,
         )
 
-        answer = self._grounded_answer(query, context_rows)
+        # Add low confidence disclaimer if needed
+        if confidence < 0.4:
+            answer = self.improved_classifier.get_low_confidence_message(answer)
+
         self.memory.add_turn('user', query)
         self.memory.add_turn('assistant', answer)
 
         return ResponseFormatter.format_response(
             answer=answer,
-            intent_label=str(intent['intent_label']),
-            intent_category=str(intent['intent_category']),
-            confidence=float(intent['confidence']),
+            intent_label=display_name,
+            intent_category=display_name,
+            confidence=float(confidence),
             context=context_rows,
         )
+
