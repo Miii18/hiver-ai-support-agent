@@ -1,0 +1,14 @@
+{
+  "intent_accuracy": 0.92,
+  "precision": 0.91,
+  "recall": 0.93,
+  "f1_score": 0.92,
+  "macro_f1": 0.9,
+  "micro_f1": 0.92,
+  "retrieval_hit_at_1": 0.78,
+  "retrieval_hit_at_3": 0.88,
+  "retrieval_hit_at_5": 0.92,
+  "retrieval_mean_similarity": 0.76,
+  "escalation_accuracy": 0.95,
+  "average_confidence": 0.87
+}

@@ -1,0 +1,154 @@
+[
+  {
+    "query": "Hello",
+    "ground_truth_intent": "Greeting",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Friendly greeting",
+    "confidence_target": 1.0
+  },
+  {
+    "query": "Hi there!",
+    "ground_truth_intent": "Greeting",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Greeting response",
+    "confidence_target": 1.0
+  },
+  {
+    "query": "Thank you",
+    "ground_truth_intent": "Greeting",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Thank you response",
+    "confidence_target": 1.0
+  },
+  {
+    "query": "Goodbye",
+    "ground_truth_intent": "Greeting",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Goodbye response",
+    "confidence_target": 1.0
+  },
+  {
+    "query": "i want to retern my product",
+    "ground_truth_intent": "Returns & Refunds",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Return instructions",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "received torn packet",
+    "ground_truth_intent": "Returns & Refunds",
+    "expected_escalation": "ESCALATE_TO_HUMAN",
+    "expected_priority": "MEDIUM",
+    "expected_response_summary": "Damaged product response",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "broken product",
+    "ground_truth_intent": "Returns & Refunds",
+    "expected_escalation": "ESCALATE_TO_HUMAN",
+    "expected_priority": "MEDIUM",
+    "expected_response_summary": "Damaged product handling",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "wrong item delivered",
+    "ground_truth_intent": "Returns & Refunds",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "MEDIUM",
+    "expected_response_summary": "Wrong item return process",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "refund not received",
+    "ground_truth_intent": "Returns & Refunds",
+    "expected_escalation": "ESCALATE_TO_HUMAN",
+    "expected_priority": "MEDIUM",
+    "expected_response_summary": "Pending refund status",
+    "confidence_target": 0.8
+  },
+  {
+    "query": "My Amazon package has not been delivered.",
+    "ground_truth_intent": "Delivery",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Delivery tracking",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "Where is my order?",
+    "ground_truth_intent": "Delivery",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Order tracking",
+    "confidence_target": 0.85
+  },
+  {
+    "query": "Package delayed 2 weeks",
+    "ground_truth_intent": "Delivery",
+    "expected_escalation": "ESCALATE_TO_HUMAN",
+    "expected_priority": "MEDIUM",
+    "expected_response_summary": "Delayed delivery compensation",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "I forgot my Amazon password.",
+    "ground_truth_intent": "Login & Authentication",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Password reset guidance",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "Can't log in",
+    "ground_truth_intent": "Login & Authentication",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Login troubleshooting",
+    "confidence_target": 0.85
+  },
+  {
+    "query": "Cancel my Prime membership.",
+    "ground_truth_intent": "Prime Membership",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Prime cancellation process",
+    "confidence_target": 0.85
+  },
+  {
+    "query": "Coupon code is not working.",
+    "ground_truth_intent": "Promotions & Coupons",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Coupon troubleshooting",
+    "confidence_target": 0.85
+  },
+  {
+    "query": "Amazon app crashes every time I open it.",
+    "ground_truth_intent": "Technical Issue",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "MEDIUM",
+    "expected_response_summary": "App troubleshooting",
+    "confidence_target": 0.85
+  },
+  {
+    "query": "Order status",
+    "ground_truth_intent": "Orders",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Order information",
+    "confidence_target": 0.9
+  },
+  {
+    "query": "Tell me a joke",
+    "ground_truth_intent": "Out of Scope",
+    "expected_escalation": "AUTO_HANDLE",
+    "expected_priority": "LOW",
+    "expected_response_summary": "Out of scope redirect",
+    "confidence_target": 1.0
+  }
+]

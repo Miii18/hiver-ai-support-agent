@@ -1,0 +1,8 @@
+{
+  "query": "Hello",
+  "ground_truth_intent": "Greeting",
+  "expected_escalation": "AUTO_HANDLE",
+  "expected_priority": "LOW",
+  "expected_response_summary": "Friendly greeting response",
+  "confidence_target": 1.0
+}

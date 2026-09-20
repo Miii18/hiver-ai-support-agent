@@ -1,0 +1,20 @@
+query,ground_truth_intent,expected_escalation,expected_priority,expected_response_summary,confidence_target
+"Hello",Greeting,AUTO_HANDLE,LOW,Friendly greeting,1.0
+"Hi there!",Greeting,AUTO_HANDLE,LOW,Greeting response,1.0
+"Thank you",Greeting,AUTO_HANDLE,LOW,Thank you response,1.0
+"Goodbye",Greeting,AUTO_HANDLE,LOW,Goodbye response,1.0
+"i want to retern my product",Returns & Refunds,AUTO_HANDLE,LOW,Return instructions,0.9
+"received torn packet",Returns & Refunds,ESCALATE_TO_HUMAN,MEDIUM,Damaged product response,0.9
+"broken product",Returns & Refunds,ESCALATE_TO_HUMAN,MEDIUM,Damaged product handling,0.9
+"wrong item delivered",Returns & Refunds,AUTO_HANDLE,MEDIUM,Wrong item return process,0.9
+"refund not received",Returns & Refunds,ESCALATE_TO_HUMAN,MEDIUM,Pending refund status,0.8
+"My Amazon package has not been delivered.",Delivery,AUTO_HANDLE,LOW,Delivery tracking,0.9
+"Where is my order?",Delivery,AUTO_HANDLE,LOW,Order tracking,0.85
+"Package delayed 2 weeks",Delivery,ESCALATE_TO_HUMAN,MEDIUM,Delayed delivery compensation,0.9
+"I forgot my Amazon password.",Login & Authentication,AUTO_HANDLE,LOW,Password reset guidance,0.9
+"Can't log in",Login & Authentication,AUTO_HANDLE,LOW,Login troubleshooting,0.85
+"Cancel my Prime membership.",Prime Membership,AUTO_HANDLE,LOW,Prime cancellation process,0.85
+"Coupon code is not working.",Promotions & Coupons,AUTO_HANDLE,LOW,Coupon troubleshooting,0.85
+"Amazon app crashes every time I open it.",Technical Issue,AUTO_HANDLE,MEDIUM,App troubleshooting,0.85
+"Order status",Orders,AUTO_HANDLE,LOW,Order information,0.9
+"Tell me a joke",Out of Scope,AUTO_HANDLE,LOW,Out of scope redirect,1.0

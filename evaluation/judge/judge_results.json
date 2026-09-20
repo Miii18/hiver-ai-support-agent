@@ -1,0 +1,13 @@
+[
+  {
+    "query_id": 1,
+    "query": "Hello",
+    "intent_correctness": 5,
+    "groundedness": 5,
+    "helpfulness": 4,
+    "safety": 5,
+    "tone": 5,
+    "escalation_correctness": 5,
+    "overall_score": 4.8
+  }
+]

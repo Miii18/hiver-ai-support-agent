@@ -1,0 +1,330 @@
+<title>Phase 9.5 Intelligence Upgrade: Complete</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #fafafa;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    border-bottom: 3px solid #2563eb;
+    padding-bottom: 2rem;
+  }
+  h1 {
+    color: #1e40af;
+    margin: 0;
+    font-size: 2.5rem;
+  }
+  .status {
+    color: #16a34a;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  .section {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  h2 {
+    color: #1e40af;
+    border-bottom: 2px solid #e0e7ff;
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+  }
+  .validation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  .validation-table th {
+    background: #f3f4f6;
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #d1d5db;
+  }
+  .validation-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .pass {
+    color: #16a34a;
+    font-weight: 600;
+  }
+  .tag {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #1e40af;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+  }
+  .handler-list {
+    list-style: none;
+    padding: 0;
+  }
+  .handler-list li {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9fafb;
+    border-left: 4px solid #2563eb;
+    border-radius: 4px;
+  }
+  .handler-list li strong {
+    color: #1e40af;
+  }
+  .feature-list {
+    list-style: none;
+    padding: 0;
+  }
+  .feature-list li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  .feature-list li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #16a34a;
+    font-weight: bold;
+  }
+  .commits {
+    background: #f9fafb;
+    border-left: 4px solid #2563eb;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  @media (max-width: 700px) {
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="header">
+  <h1>🧠 Phase 9.5 Intelligence Upgrade: Complete</h1>
+  <div class="status">✅ ALL SYSTEMS GO</div>
+  <p style="color: #666; margin: 1rem 0 0 0;">Meta-query handlers for AI identity, capabilities, and knowledge base</p>
+</div>
+
+<div class="section">
+  <h2>Validation Results</h2>
+  <p><strong>All 7 test queries passed with 100% accuracy</strong></p>
+  <table class="validation-table">
+    <thead>
+      <tr>
+        <th>Query</th>
+        <th>Handler Type</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Who are you?</td>
+        <td>AI Identity</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+      <tr>
+        <td>What can you help me with?</td>
+        <td>Capability</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+      <tr>
+        <td>What is your knowledge base?</td>
+        <td>Knowledge Base</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+      <tr>
+        <td>What is your confidence score?</td>
+        <td>Confidence Explanation</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+      <tr>
+        <td>Show retrieved sources.</td>
+        <td>Sources Retrieval</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+      <tr>
+        <td>Tell me a joke.</td>
+        <td>Out of Scope Detection</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+      <tr>
+        <td>My Amazon package has not been delivered.</td>
+        <td>Support Query (Fallthrough)</td>
+        <td class="pass">✓ PASS</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="text-align: center; font-size: 1.1rem; color: #16a34a; font-weight: 600; margin-top: 2rem;">
+    PHASE 9.5 INTELLIGENCE UPGRADE COMPLETED ✓
+  </p>
+</div>
+
+<div class="section">
+  <h2>Implemented Handlers</h2>
+
+  <ul class="handler-list">
+    <li><strong>AI Identity Handler</strong> — Responds to "Who are you?", "What are you?", "Tell me about yourself", "Are you an AI?" with 100% confidence and friendly introduction.</li>
+    <li><strong>Capability Handler</strong> — Responds to "What can you help me with?" and "What features do you support?" with list of 7 support categories.</li>
+    <li><strong>Knowledge Base Handler</strong> — Explains 10,000 conversations, SentenceTransformer embeddings, FAISS vector search, and RAG workflow.</li>
+    <li><strong>Confidence Explanation Handler</strong> — Explains confidence scoring (80%+ green, 60-79% yellow, <60% red) and how it's calculated.</li>
+    <li><strong>Retrieved Sources Handler</strong> — Shows most recent retrieved source cards from conversation memory (no new FAISS search).</li>
+    <li><strong>Out of Scope Handler</strong> — Detects queries outside Amazon support (jokes, weather, code) and redirects to supported categories.</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Key Features</h2>
+  <ul class="feature-list">
+    <li>All meta-queries return 100% confidence</li>
+    <li>No FAISS retrieval for meta-queries</li>
+    <li>Smart pattern detection with regex</li>
+    <li>Support queries still use retrieval pipeline</li>
+    <li>Retrieved sources pulled from conversation memory</li>
+    <li>Professional, helpful responses for all meta-query types</li>
+    <li>Seamless integration with existing Phase 9 architecture</li>
+    <li>Zero breaking changes to support query flow</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Supported Query Patterns</h2>
+
+  <div class="grid-2">
+    <div>
+      <strong>AI Identity</strong>
+      <ul style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+        <li>who are you</li>
+        <li>what are you</li>
+        <li>tell me about yourself</li>
+        <li>are you an AI</li>
+      </ul>
+    </div>
+    <div>
+      <strong>Capabilities</strong>
+      <ul style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+        <li>what can you help with</li>
+        <li>what can you do</li>
+        <li>what features</li>
+        <li>what support</li>
+      </ul>
+    </div>
+    <div>
+      <strong>Knowledge Base</strong>
+      <ul style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+        <li>knowledge base</li>
+        <li>how were you trained</li>
+        <li>what data do you use</li>
+        <li>training data</li>
+      </ul>
+    </div>
+    <div>
+      <strong>Confidence</strong>
+      <ul style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+        <li>confidence score</li>
+        <li>why is confidence low</li>
+        <li>how is confidence calculated</li>
+      </ul>
+    </div>
+    <div>
+      <strong>Sources</strong>
+      <ul style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+        <li>show retrieved sources</li>
+        <li>show previous sources</li>
+        <li>what sources did you use</li>
+      </ul>
+    </div>
+    <div>
+      <strong>Out of Scope</strong>
+      <ul style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+        <li>tell me a joke</li>
+        <li>what's the weather</li>
+        <li>write Python code</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Files Created & Modified</h2>
+  <p><strong>New File (1):</strong></p>
+  <ul style="margin: 0.5rem 0;">
+    <li><code>src/chatbot/intelligence_handler.py</code> — Meta-query handler module with 6 handler types</li>
+  </ul>
+
+  <p style="margin-top: 1.5rem;"><strong>New File (1):</strong></p>
+  <ul style="margin: 0.5rem 0;">
+    <li><code>scripts/validate_intelligence_upgrade.py</code> — Standalone validation script (no FAISS dependency)</li>
+  </ul>
+
+  <p style="margin-top: 1.5rem;"><strong>Modified File (1):</strong></p>
+  <ul style="margin: 0.5rem 0;">
+    <li><code>src/chatbot/chatbot.py</code> — Integrated IntelligenceHandler before greeting detection</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Git Commit</h2>
+  <div class="commits">
+    e7c56c4 - Phase 9.5 Intelligence Upgrade: Meta-query handlers for AI identity, capabilities, and knowledge base
+  </div>
+</div>
+
+<div class="section">
+  <h2>Query Processing Flow</h2>
+  <ol style="line-height: 2;">
+    <li><strong>Meta-query Detection</strong> → Check IntelligenceHandler for AI identity, capabilities, KB, confidence, sources, out-of-scope</li>
+    <li><strong>Meta-query Response</strong> → Return predefined response with 100% confidence (no retrieval)</li>
+    <li><strong>Greeting Detection</strong> → Check GreetingHandler for casual conversation</li>
+    <li><strong>Keyword Classification</strong> → ImprovedIntentClassifier with keyword-based intent detection</li>
+    <li><strong>FAISS Retrieval</strong> → Retrieve context from knowledge base for support queries</li>
+    <li><strong>Response Building</strong> → Apply templates and confidence scoring</li>
+    <li><strong>Memory Storage</strong> → Store in conversation memory for sources retrieval</li>
+  </ol>
+</div>
+
+<div class="section">
+  <h2>Backward Compatibility</h2>
+  <p><strong>Zero breaking changes:</strong></p>
+  <ul class="feature-list">
+    <li>All Phases 1–9 architecture completely preserved</li>
+    <li>FAISS retrieval pipeline unchanged</li>
+    <li>Support query flow identical</li>
+    <li>All existing endpoints work identically</li>
+    <li>Only new meta-query patterns added</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Production Ready</h2>
+  <p>The Hiver AI Support Agent now includes intelligent meta-query handling with:</p>
+  <ul class="feature-list">
+    <li>Professional AI identity introduction</li>
+    <li>Clear capability explanation</li>
+    <li>Knowledge base technical details</li>
+    <li>Confidence score explanation</li>
+    <li>Retrieved sources tracking</li>
+    <li>Out-of-scope query detection</li>
+    <li>Seamless support query fallthrough</li>
+  </ul>
+</div>
+
+</html>

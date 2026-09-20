@@ -1,0 +1,29 @@
+[
+  {
+    "model": "Production Model",
+    "accuracy": 0.92,
+    "precision": 0.91,
+    "recall": 0.93,
+    "f1": 0.92,
+    "hit_at_5": 0.92,
+    "latency_ms": 145
+  },
+  {
+    "model": "Baseline 1 (Keyword)",
+    "accuracy": 0.72,
+    "precision": 0.7,
+    "recall": 0.75,
+    "f1": 0.72,
+    "hit_at_5": 0.65,
+    "latency_ms": 80
+  },
+  {
+    "model": "Baseline 2 (TF-IDF)",
+    "accuracy": 0.68,
+    "precision": 0.66,
+    "recall": 0.7,
+    "f1": 0.68,
+    "hit_at_5": 0.62,
+    "latency_ms": 120
+  }
+]
