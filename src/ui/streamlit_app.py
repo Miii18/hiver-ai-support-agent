@@ -184,10 +184,10 @@ def render_chat_area() -> None:
         # Invisible anchor at the bottom of chat for scroll target
         st.markdown('<div id="chat-bottom"></div>', unsafe_allow_html=True)
 
-    # Auto-scroll to anchor with requestAnimationFrame retry logic
+    # Reliable auto-scroll with MutationObserver and continuous retry
     st.components.v1.html("""
     <script>
-    // Robust auto-scroll with retry mechanism
+    // Reliable auto-scroll using MutationObserver and continuous retry
     (function() {
         const startTime = Date.now();
         const maxRetryDuration = 1000; // Retry for about 1 second
@@ -201,16 +201,47 @@ def render_chat_area() -> None:
             return false;
         }
 
-        function retryScroll() {
-            if (!scrollToBottom() && Date.now() - startTime < maxRetryDuration) {
-                // Retry using requestAnimationFrame for smooth timing
-                requestAnimationFrame(retryScroll);
+        // Continuous retry using requestAnimationFrame
+        function continuousRetry() {
+            if (Date.now() - startTime < maxRetryDuration) {
+                scrollToBottom();
+                requestAnimationFrame(continuousRetry);
             }
         }
 
-        // Initial scroll attempts with increasing delays
+        // Initial scroll attempts
         setTimeout(() => scrollToBottom(), 10);
-        setTimeout(() => retryScroll(), 50);
+        setTimeout(() => continuousRetry(), 30);
+
+        // Also use MutationObserver to scroll on DOM changes
+        try {
+            const observer = new MutationObserver(function(mutations) {
+                if (Date.now() - startTime < maxRetryDuration) {
+                    scrollToBottom();
+                }
+            });
+
+            // Observe the main app container for changes
+            const appRoot = document.querySelector('[data-testid="stAppViewContainer"]') ||
+                          document.querySelector('main') ||
+                          document.body;
+
+            if (appRoot) {
+                observer.observe(appRoot, {
+                    childList: true,
+                    subtree: true,
+                    characterData: false,
+                    attributes: false
+                });
+
+                // Stop observing after 1 second
+                setTimeout(() => observer.disconnect(), maxRetryDuration);
+            }
+        } catch (e) {
+            // Observer not critical, continue without it
+        }
+
+        // Final scroll attempts at key intervals
         setTimeout(() => scrollToBottom(), 100);
         setTimeout(() => scrollToBottom(), 200);
         setTimeout(() => scrollToBottom(), 300);
@@ -269,25 +300,6 @@ def render_chat_area() -> None:
         if last.get("sources"):
             st.markdown("---")
             render_sources(last.get("sources") or [])
-
-    # Final scroll to ensure latest message is visible after all content renders
-    st.components.v1.html("""
-    <script>
-    // Final scroll attempt after all content is rendered
-    (function() {
-        function scrollToBottom() {
-            const anchor = document.getElementById('chat-bottom');
-            if (anchor) {
-                anchor.scrollIntoView({behavior: 'smooth', block: 'end'});
-            }
-        }
-        // Multiple scroll attempts to catch late-rendering content
-        setTimeout(scrollToBottom, 50);
-        setTimeout(scrollToBottom, 100);
-        setTimeout(scrollToBottom, 200);
-    })();
-    </script>
-    """, height=0)
 
 
 def main() -> None:
