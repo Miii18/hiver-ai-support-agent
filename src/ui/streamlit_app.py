@@ -174,7 +174,7 @@ def render_header() -> None:
 
 def render_chat_area() -> None:
     """Render main chat interface with auto-scroll to latest message."""
-    # Create a container for chat messages to enable scrolling
+    # Create a scrollable container for chat messages
     chat_container = st.container()
 
     with chat_container:
@@ -184,45 +184,38 @@ def render_chat_area() -> None:
         # Invisible anchor at the bottom of chat for scroll target
         st.markdown('<div id="chat-bottom"></div>', unsafe_allow_html=True)
 
-    # Auto-scroll to anchor using st.components.v1.html with observer
+    # Auto-scroll to anchor with requestAnimationFrame retry logic
     st.components.v1.html("""
     <script>
-    // Keep chat scrolled to newest message
+    // Robust auto-scroll with retry mechanism
     (function() {
+        const startTime = Date.now();
+        const maxRetryDuration = 1000; // Retry for about 1 second
+
         function scrollToBottom() {
             const anchor = document.getElementById('chat-bottom');
             if (anchor) {
                 anchor.scrollIntoView({behavior: 'smooth', block: 'end'});
+                return true;
+            }
+            return false;
+        }
+
+        function retryScroll() {
+            if (!scrollToBottom() && Date.now() - startTime < maxRetryDuration) {
+                // Retry using requestAnimationFrame for smooth timing
+                requestAnimationFrame(retryScroll);
             }
         }
 
-        // Initial scroll after small delay to ensure DOM is ready
-        setTimeout(scrollToBottom, 30);
-
-        // Also scroll after a longer delay to catch Streamlit reruns
-        setTimeout(scrollToBottom, 200);
-
-        // Observer to keep chat pinned to bottom during DOM changes
-        try {
-            const observer = new MutationObserver(function() {
-                const anchor = document.getElementById('chat-bottom');
-                if (anchor) {
-                    anchor.scrollIntoView({behavior: 'auto', block: 'end'});
-                }
-            });
-
-            // Observe the main app container for changes
-            const appRoot = document.querySelector('[data-testid="stAppViewContainer"]');
-            if (appRoot) {
-                observer.observe(appRoot, {
-                    childList: true,
-                    subtree: true,
-                    characterData: false
-                });
-            }
-        } catch (e) {
-            // Observer not critical, continue without it
-        }
+        // Initial scroll attempts with increasing delays
+        setTimeout(() => scrollToBottom(), 10);
+        setTimeout(() => retryScroll(), 50);
+        setTimeout(() => scrollToBottom(), 100);
+        setTimeout(() => scrollToBottom(), 200);
+        setTimeout(() => scrollToBottom(), 300);
+        setTimeout(() => scrollToBottom(), 500);
+        setTimeout(() => scrollToBottom(), 800);
     })();
     </script>
     """, height=0)
@@ -280,7 +273,7 @@ def render_chat_area() -> None:
     # Final scroll to ensure latest message is visible after all content renders
     st.components.v1.html("""
     <script>
-    // Final scroll after all elements have rendered
+    // Final scroll attempt after all content is rendered
     (function() {
         function scrollToBottom() {
             const anchor = document.getElementById('chat-bottom');
@@ -288,10 +281,10 @@ def render_chat_area() -> None:
                 anchor.scrollIntoView({behavior: 'smooth', block: 'end'});
             }
         }
+        // Multiple scroll attempts to catch late-rendering content
+        setTimeout(scrollToBottom, 50);
         setTimeout(scrollToBottom, 100);
-
-        // Extra scroll for late-rendering content
-        setTimeout(scrollToBottom, 300);
+        setTimeout(scrollToBottom, 200);
     })();
     </script>
     """, height=0)
