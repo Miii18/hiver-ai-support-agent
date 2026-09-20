@@ -181,15 +181,51 @@ def render_chat_area() -> None:
         for message in st.session_state.messages:
             render_chat_bubble(message["role"], message["content"], message.get("timestamp"))
 
-    # Auto-scroll to bottom using JavaScript
-    st.markdown("""
+        # Invisible anchor at the bottom of chat for scroll target
+        st.markdown('<div id="chat-bottom"></div>', unsafe_allow_html=True)
+
+    # Auto-scroll to anchor using st.components.v1.html with observer
+    st.components.v1.html("""
     <script>
-    // Auto-scroll chat to the latest message
-    setTimeout(function() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }, 100);
+    // Keep chat scrolled to newest message
+    (function() {
+        function scrollToBottom() {
+            const anchor = document.getElementById('chat-bottom');
+            if (anchor) {
+                anchor.scrollIntoView({behavior: 'smooth', block: 'end'});
+            }
+        }
+
+        // Initial scroll after small delay to ensure DOM is ready
+        setTimeout(scrollToBottom, 30);
+
+        // Also scroll after a longer delay to catch Streamlit reruns
+        setTimeout(scrollToBottom, 200);
+
+        // Observer to keep chat pinned to bottom during DOM changes
+        try {
+            const observer = new MutationObserver(function() {
+                const anchor = document.getElementById('chat-bottom');
+                if (anchor) {
+                    anchor.scrollIntoView({behavior: 'auto', block: 'end'});
+                }
+            });
+
+            // Observe the main app container for changes
+            const appRoot = document.querySelector('[data-testid="stAppViewContainer"]');
+            if (appRoot) {
+                observer.observe(appRoot, {
+                    childList: true,
+                    subtree: true,
+                    characterData: false
+                });
+            }
+        } catch (e) {
+            // Observer not critical, continue without it
+        }
+    })();
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
     prompt = st.chat_input("Ask me about orders, returns, delivery, promotions, or account issues...")
 
@@ -241,15 +277,24 @@ def render_chat_area() -> None:
             st.markdown("---")
             render_sources(last.get("sources") or [])
 
-    # Final scroll to ensure latest message is visible
-    st.markdown("""
+    # Final scroll to ensure latest message is visible after all content renders
+    st.components.v1.html("""
     <script>
-    // Ensure final scroll after all elements render
-    setTimeout(function() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }, 200);
+    // Final scroll after all elements have rendered
+    (function() {
+        function scrollToBottom() {
+            const anchor = document.getElementById('chat-bottom');
+            if (anchor) {
+                anchor.scrollIntoView({behavior: 'smooth', block: 'end'});
+            }
+        }
+        setTimeout(scrollToBottom, 100);
+
+        // Extra scroll for late-rendering content
+        setTimeout(scrollToBottom, 300);
+    })();
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
 
 def main() -> None:
