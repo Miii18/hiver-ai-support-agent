@@ -8,6 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from datetime import datetime
+import pytz
 
 import streamlit as st
 
@@ -35,6 +36,25 @@ st.set_page_config(
 )
 
 
+def get_local_time_format() -> str:
+    """Get current time in user's local timezone, formatted as 12-hour (HH:MM AM/PM)."""
+    try:
+        tz_name = st.context.timezone
+    except (AttributeError, RuntimeError):
+        tz_name = None
+
+    if not tz_name:
+        tz_name = "Asia/Kolkata"
+
+    try:
+        tz = pytz.timezone(tz_name)
+    except pytz.exceptions.UnknownTimeZoneError:
+        tz = pytz.timezone("Asia/Kolkata")
+
+    local_time = datetime.now(tz)
+    return local_time.strftime("%I:%M %p")
+
+
 def initialize_state() -> None:
     """Initialize session state."""
     if "messages" not in st.session_state:
@@ -42,7 +62,7 @@ def initialize_state() -> None:
             {
                 "role": "assistant",
                 "content": "Hi there! I'm your AI support assistant. Ask me about orders, returns, delivery, promotions, account issues, or anything else I can help with.",
-                "timestamp": datetime.utcnow().strftime("%H:%M"),
+                "timestamp": get_local_time_format(),
             }
         ]
     if "theme_dark" not in st.session_state:
@@ -96,7 +116,7 @@ def render_sidebar() -> None:
                     {
                         "role": "assistant",
                         "content": "New conversation started. How can I help you today?",
-                        "timestamp": datetime.utcnow().strftime("%H:%M"),
+                        "timestamp": get_local_time_format(),
                     }
                 ]
                 st.rerun()
@@ -107,7 +127,7 @@ def render_sidebar() -> None:
                     {
                         "role": "assistant",
                         "content": "Conversation cleared. Ask me anything.",
-                        "timestamp": datetime.utcnow().strftime("%H:%M"),
+                        "timestamp": get_local_time_format(),
                     }
                 ]
                 st.rerun()
@@ -153,9 +173,23 @@ def render_header() -> None:
 
 
 def render_chat_area() -> None:
-    """Render main chat interface."""
-    for message in st.session_state.messages:
-        render_chat_bubble(message["role"], message["content"], message.get("timestamp"))
+    """Render main chat interface with auto-scroll to latest message."""
+    # Create a container for chat messages to enable scrolling
+    chat_container = st.container()
+
+    with chat_container:
+        for message in st.session_state.messages:
+            render_chat_bubble(message["role"], message["content"], message.get("timestamp"))
+
+    # Auto-scroll to bottom using JavaScript
+    st.markdown("""
+    <script>
+    // Auto-scroll chat to the latest message
+    setTimeout(function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }, 100);
+    </script>
+    """, unsafe_allow_html=True)
 
     prompt = st.chat_input("Ask me about orders, returns, delivery, promotions, or account issues...")
 
@@ -164,7 +198,7 @@ def render_chat_area() -> None:
             {
                 "role": "user",
                 "content": prompt,
-                "timestamp": datetime.utcnow().strftime("%H:%M"),
+                "timestamp": get_local_time_format(),
             }
         )
 
@@ -180,7 +214,7 @@ def render_chat_area() -> None:
             {
                 "role": "assistant",
                 "content": answer,
-                "timestamp": datetime.utcnow().strftime("%H:%M"),
+                "timestamp": get_local_time_format(),
                 "intent": intent,
                 "confidence": confidence,
                 "sources": sources,
@@ -206,6 +240,16 @@ def render_chat_area() -> None:
         if last.get("sources"):
             st.markdown("---")
             render_sources(last.get("sources") or [])
+
+    # Final scroll to ensure latest message is visible
+    st.markdown("""
+    <script>
+    // Ensure final scroll after all elements render
+    setTimeout(function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }, 200);
+    </script>
+    """, unsafe_allow_html=True)
 
 
 def main() -> None:
