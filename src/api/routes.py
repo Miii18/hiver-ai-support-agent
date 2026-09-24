@@ -97,6 +97,7 @@ def chat(req: ChatRequest, info: dict = Depends(get_chatbot_singleton)) -> ChatR
         except Exception:
             conversation_turn = 0
 
+    escalation = resp.get('escalation') or {}
     return ChatResponse(
         query=req.query,
         detected_intent=resp.get('intent_label', ''),
@@ -104,6 +105,10 @@ def chat(req: ChatRequest, info: dict = Depends(get_chatbot_singleton)) -> ChatR
         confidence=float(resp.get('confidence', 0.0)),
         sources=sources,
         conversation_turn=int(conversation_turn),
+        escalation_decision=escalation.get('escalation_decision'),
+        escalation_priority=escalation.get('escalation_priority'),
+        escalation_reason=escalation.get('escalation_reason'),
+        escalation_triggered=bool(resp.get('escalation_triggered', False)),
     )
 
 

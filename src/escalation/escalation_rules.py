@@ -52,7 +52,7 @@ class EscalationRules:
         normalized = query.lower()
         for pattern in cls.CRITICAL_PATTERNS:
             if re.search(pattern, normalized):
-                return f"Critical issue detected: {pattern}"
+                return "Critical issue detected."
         return None
 
     @classmethod
@@ -61,7 +61,7 @@ class EscalationRules:
         normalized = query.lower()
         for pattern in cls.HIGH_PRIORITY_PATTERNS:
             if re.search(pattern, normalized):
-                return f"High-priority issue detected: {pattern}"
+                return "High-priority issue detected."
         return None
 
     @classmethod

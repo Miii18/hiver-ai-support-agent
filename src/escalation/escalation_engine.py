@@ -40,31 +40,35 @@ class EscalationEngine:
         critical_triggers = self.rules.check_critical_triggers(query)
         if critical_triggers:
             return {
-                "escalation_decision": EscalationDecision.ESCALATE_TO_HUMAN,
+                "escalation_decision": EscalationDecision.ESCALATE_TO_HUMAN.value,
                 "escalation_reason": critical_triggers,
-                "escalation_priority": EscalationPriority.CRITICAL,
+                "escalation_priority": EscalationPriority.CRITICAL.value,
+                "escalation_intent": intent,
             }
 
         # Check for high-priority escalation triggers
         high_triggers = self.rules.check_high_priority_triggers(query)
         if high_triggers:
             return {
-                "escalation_decision": EscalationDecision.ESCALATE_TO_HUMAN,
+                "escalation_decision": EscalationDecision.ESCALATE_TO_HUMAN.value,
                 "escalation_reason": high_triggers,
-                "escalation_priority": EscalationPriority.HIGH,
+                "escalation_priority": EscalationPriority.HIGH.value,
+                "escalation_intent": intent,
             }
 
         # Check if intent can be auto-handled
         if self.rules.can_auto_handle(intent, confidence):
             return {
-                "escalation_decision": EscalationDecision.AUTO_HANDLE,
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
                 "escalation_reason": f"{intent} query with {confidence:.0%} confidence can be auto-handled.",
-                "escalation_priority": EscalationPriority.LOW,
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": intent,
             }
 
         # Medium priority escalation
         return {
-            "escalation_decision": EscalationDecision.ESCALATE_TO_HUMAN,
+            "escalation_decision": EscalationDecision.ESCALATE_TO_HUMAN.value,
             "escalation_reason": f"Query requires human review. Intent: {intent}, Confidence: {confidence:.0%}",
-            "escalation_priority": EscalationPriority.MEDIUM,
+            "escalation_priority": EscalationPriority.MEDIUM.value,
+            "escalation_intent": intent,
         }

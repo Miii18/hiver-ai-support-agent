@@ -80,6 +80,10 @@ class ChatResponse(BaseModel):
     confidence: float
     sources: List[SourceItem]
     conversation_turn: int
+    escalation_decision: Optional[str] = None
+    escalation_priority: Optional[str] = None
+    escalation_reason: Optional[str] = None
+    escalation_triggered: bool = False
 
 
 class ResetResponse(BaseModel):

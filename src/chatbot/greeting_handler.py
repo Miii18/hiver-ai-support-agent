@@ -7,14 +7,15 @@ from typing import Any
 class GreetingHandler:
     """Detects and handles greetings and casual conversation before retrieval."""
 
-    # Greeting patterns
+    # Greeting patterns - includes variations like "hii", "hiii", etc.
     GREETING_PATTERNS = {
-        "hello": r"\bhello\b",
-        "hi": r"\bhi\b",
+        "hello": r"\bhello+\b",
+        "hi": r"\bhi+\b",
         "hey": r"\bhey\b",
         "good morning": r"good\s+morning",
         "good afternoon": r"good\s+afternoon",
         "good evening": r"good\s+evening",
+        "see you": r"see\s+you",
     }
 
     # Thank-you patterns
@@ -31,8 +32,16 @@ class GreetingHandler:
 
     @staticmethod
     def normalize_text(text: str) -> str:
-        """Normalize text for pattern matching."""
-        return text.lower().strip()
+        """Normalize text for pattern matching, including repeated letters."""
+        # Convert to lowercase and strip whitespace
+        normalized = text.lower().strip()
+
+        # Normalize repeated letters (hii, hiii -> hi, hiiii -> hi, etc.)
+        # Replace repeated characters (3+ times) with 2
+        import re
+        normalized = re.sub(r'([a-z])\1{2,}', r'\1\1', normalized)
+
+        return normalized
 
     @classmethod
     def detect_greeting(cls, query: str) -> str | None:

@@ -12,12 +12,12 @@ import pytz
 
 import streamlit as st
 
-from src.ui.api_client import chat, fetch_intents, health_check, reset_memory
+from src.ui.api_client import chat, health_check, reset_memory
+from src.chatbot.response_template_builder import ResponseTemplateBuilder
 from src.ui.components import (
     api_status_display,
     confidence_meter,
     embedding_model_display,
-    get_display_intent,
     intent_badge,
     knowledge_base_display,
     render_chat_bubble,
@@ -65,8 +65,6 @@ def initialize_state() -> None:
                 "timestamp": get_local_time_format(),
             }
         ]
-    if "theme_dark" not in st.session_state:
-        st.session_state.theme_dark = True
 
 
 def render_sidebar() -> None:
@@ -97,21 +95,27 @@ def render_sidebar() -> None:
             unsafe_allow_html=True,
         )
 
-        intent_options = fetch_intents()
-        if intent_options:
-            intent_list = [
-                item.get("intent_label") or item.get("name") or "Support"
-                for item in intent_options[:8]
-            ]
-            for intent in intent_list:
-                display_name = get_display_intent(intent)
-                st.markdown(f"• {display_name}", unsafe_allow_html=True)
+        friendly_categories = [
+            ("📦", "Orders"),
+            ("🚚", "Delivery & Tracking"),
+            ("↩️", "Returns & Refunds"),
+            ("🔐", "Login & Account Security"),
+            ("⭐", "Prime Membership"),
+            ("🎁", "Promotions & Coupons"),
+            ("🛠️", "Technical Support"),
+            ("💬", "Other Support"),
+        ]
+        for icon, label in friendly_categories:
+            st.markdown(
+                f'<div class="sidebar-cat-item"><span>{icon}</span><span>{label}</span></div>',
+                unsafe_allow_html=True,
+            )
 
         st.markdown("---")
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("New Chat", use_container_width=True):
+            if st.button("➕ New Chat", use_container_width=True):
                 st.session_state.messages = [
                     {
                         "role": "assistant",
@@ -122,7 +126,7 @@ def render_sidebar() -> None:
                 st.rerun()
 
         with col2:
-            if st.button("Clear", use_container_width=True):
+            if st.button("🗑️ Clear Chat", use_container_width=True):
                 st.session_state.messages = [
                     {
                         "role": "assistant",
@@ -132,18 +136,9 @@ def render_sidebar() -> None:
                 ]
                 st.rerun()
 
-        if st.button("Reset Memory", use_container_width=True):
+        if st.button("🧠 Reset Memory", use_container_width=True):
             reset_memory()
             st.info("Conversation memory cleared on server.", icon="OK")
-
-        st.markdown("---")
-
-        st.markdown("**Display**", unsafe_allow_html=True)
-        st.session_state.theme_dark = st.toggle(
-            "Dark mode",
-            value=st.session_state.theme_dark,
-            label_visibility="collapsed",
-        )
 
         st.markdown("---")
         chat_log = "\n\n".join(
@@ -151,7 +146,7 @@ def render_sidebar() -> None:
             for msg in st.session_state.messages
         )
         st.download_button(
-            label="Export Conversation",
+            label="📄 Export Conversation",
             data=chat_log,
             file_name="support_conversation.txt",
             mime="text/plain",
@@ -160,96 +155,194 @@ def render_sidebar() -> None:
 
 
 def render_header() -> None:
-    """Render production header banner."""
     st.markdown(
         """
         <div class="header-banner">
-            <h1>AI Support Assistant</h1>
-            <p>Intelligent customer support powered by retrieval-augmented generation</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1 style="margin:0;font-size:1.8rem;font-weight:800;letter-spacing:-0.5px;">AI Support Assistant</h1>
+                    <p style="margin:0.4rem 0 0 0;opacity:0.85;font-size:0.95rem;">Intelligent customer support powered by retrieval-augmented generation</p>
+                </div>
+                <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+                    <span class="status-pill pill-green">🟢 API Online</span>
+                    <span class="status-pill pill-green">🟢 FAISS Loaded</span>
+                    <span class="status-pill pill-green">🟢 Knowledge Base</span>
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
+def _render_escalation_banner(message: dict) -> None:
+    """Render a colored escalation banner above the assistant bubble."""
+    esc_type = message.get("esc_type", "general")
+    escalation_priority = message.get("escalation_priority", "HIGH")
+    cfg = ResponseTemplateBuilder.BANNER_CONFIG.get(esc_type, ResponseTemplateBuilder.BANNER_CONFIG["general"])
+    priority_label = (escalation_priority or "HIGH").capitalize()
+    display_reason = cfg["friendly_reason"]
+    steps_html = "".join(
+        f'<li style="margin:4px 0;">{step}</li>'
+        for step in cfg["next_steps"]
+    )
+    st.markdown(
+        f"""
+        <div style="
+            background:{cfg['bg_gradient']};
+            color:#fff;
+            border-radius:12px;
+            padding:20px 22px;
+            margin:14px 0;
+            border-left:6px solid {cfg['border']};
+            box-shadow:0 4px 16px rgba(0,0,0,0.35);
+        ">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span style="font-size:28px;line-height:1;">{cfg['icon']}</span>
+                <div>
+                    <div style="font-size:18px;font-weight:700;letter-spacing:0.3px;">{cfg['label']}</div>
+                    <span style="
+                        background:{cfg['badge_bg']};
+                        color:#fff;
+                        font-size:11px;
+                        font-weight:700;
+                        padding:2px 9px;
+                        border-radius:20px;
+                        letter-spacing:0.8px;
+                        text-transform:uppercase;
+                    ">Priority: {priority_label}</span>
+                </div>
+            </div>
+            <div style="margin-bottom:12px;font-size:14px;opacity:0.95;">
+                <b>Reason:</b> {display_reason}
+            </div>
+            <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:12px 14px;">
+                <div style="font-size:13px;font-weight:600;margin-bottom:6px;opacity:0.85;text-transform:uppercase;letter-spacing:0.5px;">Next Steps</div>
+                <ul style="margin:0;padding-left:18px;font-size:13px;opacity:0.92;line-height:1.6;">
+                    {steps_html}
+                </ul>
+            </div>
+            <div style="font-size:12px;opacity:0.7;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px;">
+                This issue has been routed to a human support specialist.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _bubble_html(message: dict) -> str:
+    """Build chat bubble HTML string for a single message."""
+    role = message["role"]
+    content = message["content"]
+    ts = message.get("timestamp") or ""
+    if role == "user":
+        return (
+            f'<div class="chat-row-user">'
+            f'<div class="chat-bubble-wrapper" style="align-items:flex-end;">'
+            f'<div class="chat-bubble-user">{content}</div>'
+            f'<div class="bubble-meta" style="text-align:right;">{ts}</div>'
+            f'</div>'
+            f'<div class="chat-avatar">👤</div>'
+            f'</div>'
+        )
+    return (
+        f'<div class="chat-row-assistant">'
+        f'<div class="chat-avatar">🤖</div>'
+        f'<div class="chat-bubble-wrapper" style="align-items:flex-start;">'
+        f'<div class="chat-bubble-assistant">{content}</div>'
+        f'<div class="bubble-meta">{ts}</div>'
+        f'</div>'
+        f'</div>'
+    )
+
+
+def _escalation_banner_html(message: dict) -> str:
+    """Build escalation banner HTML string for inline embedding."""
+    esc_type = message.get("esc_type", "general")
+    escalation_priority = message.get("escalation_priority", "HIGH")
+    cfg = ResponseTemplateBuilder.BANNER_CONFIG.get(esc_type, ResponseTemplateBuilder.BANNER_CONFIG["general"])
+    priority_label = (escalation_priority or "HIGH").capitalize()
+    display_reason = cfg["friendly_reason"]
+    steps_html = "".join(
+        f'<li style="margin:4px 0;">{step}</li>'
+        for step in cfg["next_steps"]
+    )
+    return (
+        f'<div style="'
+        f'background:{cfg["bg_gradient"]};'
+        f'color:#fff;'
+        f'border-radius:12px;'
+        f'padding:20px 22px;'
+        f'margin:14px 0;'
+        f'border-left:6px solid {cfg["border"]};'
+        f'box-shadow:0 4px 16px rgba(0,0,0,0.35);">'
+        f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+        f'<span style="font-size:28px;line-height:1;">{cfg["icon"]}</span>'
+        f'<div>'
+        f'<div style="font-size:18px;font-weight:700;letter-spacing:0.3px;">{cfg["label"]}</div>'
+        f'<span style="'
+        f'background:{cfg["badge_bg"]};'
+        f'color:#fff;font-size:11px;font-weight:700;'
+        f'padding:2px 9px;border-radius:20px;'
+        f'letter-spacing:0.8px;text-transform:uppercase;">'
+        f'Priority: {priority_label}</span>'
+        f'</div></div>'
+        f'<div style="margin-bottom:12px;font-size:14px;opacity:0.95;">'
+        f'<b>Reason:</b> {display_reason}'
+        f'</div>'
+        f'<div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:12px 14px;">'
+        f'<div style="font-size:13px;font-weight:600;margin-bottom:6px;opacity:0.85;text-transform:uppercase;letter-spacing:0.5px;">Next Steps</div>'
+        f'<ul style="margin:0;padding-left:18px;font-size:13px;opacity:0.92;line-height:1.6;">{steps_html}</ul>'
+        f'</div>'
+        f'<div style="font-size:12px;opacity:0.7;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px;">'
+        f'This issue has been routed to a human support specialist.'
+        f'</div>'
+        f'</div>'
+    )
+
+
 def render_chat_area() -> None:
     """Render main chat interface with auto-scroll to latest message."""
-    # Create a scrollable container for chat messages
-    chat_container = st.container()
+    bubbles_html = ""
+    for message in st.session_state.messages:
+        if message.get("role") == "assistant" and message.get("escalation_triggered"):
+            bubbles_html += _escalation_banner_html(message)
+        bubbles_html += _bubble_html(message)
 
-    with chat_container:
-        for message in st.session_state.messages:
-            render_chat_bubble(message["role"], message["content"], message.get("timestamp"))
+    chat_html = (
+        '<div id="chat-container" style="'
+        'overflow-y:auto;'
+        'max-height:62vh;'
+        'padding:0.5rem 0.25rem 1rem;'
+        'display:flex;'
+        'flex-direction:column;">'
+        + bubbles_html +
+        '</div>'
+    )
+    st.markdown(chat_html, unsafe_allow_html=True)
 
-        # Invisible anchor at the bottom of chat for scroll target
-        st.markdown('<div id="chat-bottom"></div>', unsafe_allow_html=True)
+    js_scroll = """
+  <script>
+function scrollToBottom() {
+    const container = document.getElementById("chat-container");
+    if (!container) return;
 
-    # Reliable auto-scroll with MutationObserver and continuous retry
-    st.components.v1.html("""
-    <script>
-    // Reliable auto-scroll using MutationObserver and continuous retry
-    (function() {
-        const startTime = Date.now();
-        const maxRetryDuration = 1000; // Retry for about 1 second
+    requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+    });
+}
 
-        function scrollToBottom() {
-            const anchor = document.getElementById('chat-bottom');
-            if (anchor) {
-                anchor.scrollIntoView({behavior: 'smooth', block: 'end'});
-                return true;
-            }
-            return false;
-        }
+window.addEventListener("load", scrollToBottom);
 
-        // Continuous retry using requestAnimationFrame
-        function continuousRetry() {
-            if (Date.now() - startTime < maxRetryDuration) {
-                scrollToBottom();
-                requestAnimationFrame(continuousRetry);
-            }
-        }
+setTimeout(scrollToBottom, 100);
+setTimeout(scrollToBottom, 300);
+setTimeout(scrollToBottom, 600);
+</script>
+    """
+    from streamlit.components.v1 import html
+    html(js_scroll, height=0)
 
-        // Initial scroll attempts
-        setTimeout(() => scrollToBottom(), 10);
-        setTimeout(() => continuousRetry(), 30);
-
-        // Also use MutationObserver to scroll on DOM changes
-        try {
-            const observer = new MutationObserver(function(mutations) {
-                if (Date.now() - startTime < maxRetryDuration) {
-                    scrollToBottom();
-                }
-            });
-
-            // Observe the main app container for changes
-            const appRoot = document.querySelector('[data-testid="stAppViewContainer"]') ||
-                          document.querySelector('main') ||
-                          document.body;
-
-            if (appRoot) {
-                observer.observe(appRoot, {
-                    childList: true,
-                    subtree: true,
-                    characterData: false,
-                    attributes: false
-                });
-
-                // Stop observing after 1 second
-                setTimeout(() => observer.disconnect(), maxRetryDuration);
-            }
-        } catch (e) {
-            // Observer not critical, continue without it
-        }
-
-        // Final scroll attempts at key intervals
-        setTimeout(() => scrollToBottom(), 100);
-        setTimeout(() => scrollToBottom(), 200);
-        setTimeout(() => scrollToBottom(), 300);
-        setTimeout(() => scrollToBottom(), 500);
-        setTimeout(() => scrollToBottom(), 800);
-    })();
-    </script>
-    """, height=0)
 
     prompt = st.chat_input("Ask me about orders, returns, delivery, promotions, or account issues...")
 
@@ -269,6 +362,19 @@ def render_chat_area() -> None:
         intent = reply.get("detected_intent") or "Other Support"
         confidence = float(reply.get("confidence", 0.0))
         sources = reply.get("sources") or []
+        escalation_triggered = bool(reply.get("escalation_triggered", False))
+        escalation_decision = reply.get("escalation_decision") or ""
+        escalation_priority = reply.get("escalation_priority") or ""
+        escalation_reason = reply.get("escalation_reason") or ""
+
+        esc_type = "general"
+        if escalation_triggered or escalation_decision == "ESCALATE_TO_HUMAN":
+            escalation_triggered = True
+            esc_type, _ = ResponseTemplateBuilder.classify_escalation_type(
+                query=prompt,
+                intent=intent,
+                raw_reason=escalation_reason,
+            )
 
         st.session_state.messages.append(
             {
@@ -278,6 +384,10 @@ def render_chat_area() -> None:
                 "intent": intent,
                 "confidence": confidence,
                 "sources": sources,
+                "escalation_triggered": escalation_triggered,
+                "escalation_priority": escalation_priority,
+                "escalation_reason": escalation_reason,
+                "esc_type": esc_type,
             }
         )
         st.rerun()
@@ -306,8 +416,7 @@ def main() -> None:
     """Main app entry point."""
     initialize_state()
 
-    use_dark = st.session_state.get("theme_dark", True)
-    apply_theme(use_dark)
+    apply_theme()
 
     render_sidebar()
     render_header()

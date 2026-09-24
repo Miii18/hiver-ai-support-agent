@@ -68,15 +68,19 @@ class ImprovedIntentClassifier:
             "cancel return", "reimburse", "chargeback", "reimbursement",
             "damaged", "broken", "torn", "opened package", "defective",
             "cracked", "wrong item", "missing item", "received torn",
-            "received damaged", "damaged product"
+            "received damaged", "damaged product",
+            "incorrect product", "ordered wrong", "wrong product",
         ],
         "Delivery": [
-            "delivery", "delivered", "package", "parcel", "shipping",
-            "tracking", "late", "delayed", "where is", "track"
+            "delivery", "delivered", "package", "parcel",
+            "late delivery", "delayed delivery", "missing package",
+            "lost package", "not delivered", "still not delivered",
+            "estimated delivery", "delivery date", "shipment status"
         ],
         "Orders": [
-            "order status", "order", "purchase", "checkout", "bought",
-            "where is my order", "order number"
+            "order status", "track my order", "where is my order", "order number",
+            "order", "purchase", "bought", "placed an order",
+            "my order", "shipping status", "track", "tracking number"
         ],
         "Prime Membership": [
             "prime", "membership", "renewal", "subscription", "prime day",
@@ -92,7 +96,9 @@ class ImprovedIntentClassifier:
         ],
         "Technical Issue": [
             "app crash", "website not working", "error", "bug", "loading",
-            "frozen", "not loading", "broken", "glitch", "crash"
+            "frozen", "not loading", "broken", "glitch", "crash",
+            "checkout", "checkout failed", "payment page", "unable to place order",
+            "unable to place", "place order",
         ],
     }
 
@@ -124,6 +130,9 @@ class ImprovedIntentClassifier:
         # Then apply typo normalization
         return TypoNormalizer.normalize_text(normalized)
 
+    # Intents that must win over any other match when their keywords are present
+    _HIGH_PRIORITY_INTENTS = {"Returns & Refunds"}
+
     @classmethod
     def classify_by_keywords(cls, query: str) -> tuple[str, float] | None:
         """
@@ -131,8 +140,7 @@ class ImprovedIntentClassifier:
         Returns (intent_label, confidence) or None if no keyword match.
         """
         normalized = cls.normalize_text(query)
-        best_match = None
-        best_score = 0.0
+        scores: dict[str, float] = {}
 
         for intent_label, keywords in cls.INTENT_KEYWORDS.items():
             score = 0.0
@@ -143,20 +151,21 @@ class ImprovedIntentClassifier:
                         score += 2.0
                     else:
                         score += 1.0
+            if score > 0:
+                scores[intent_label] = score
 
-            if score > best_score:
-                best_score = score
-                best_match = intent_label
+        if not scores:
+            return None
 
-        if best_match and best_score > 0:
-            # Confidence based on match strength
-            if best_match == "Greeting":
-                confidence = 1.0
-            else:
-                confidence = min(1.0, 0.9 + (best_score * 0.05))
-            return (best_match, round(confidence, 2))
+        # High-priority intents win over any lower-priority match when they score > 0
+        for hp_intent in cls._HIGH_PRIORITY_INTENTS:
+            if hp_intent in scores:
+                confidence = 1.0 if hp_intent == "Greeting" else 0.95
+                return (hp_intent, round(confidence, 2))
 
-        return None
+        best_match = max(scores, key=lambda k: scores[k])
+        confidence = 1.0 if best_match == "Greeting" else 0.95
+        return (best_match, round(confidence, 2))
 
     @classmethod
     def get_display_name(cls, internal_label: str) -> str:
