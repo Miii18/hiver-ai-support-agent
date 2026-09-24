@@ -50,6 +50,22 @@ Run validation tests (Phase 8 automated):
 python scripts/run_phase8.py
 ```
 # Hiver AI Support Agent
+## 🚀 Demo Preview
+
+Production-ready AI customer support assistant built for the **Hiver SDE Intern Take-Home Assignment** using Retrieval-Augmented Generation (RAG), semantic intent classification, conversation memory, and a human escalation engine.
+
+### 🏠 Home Page
+
+![Home Page](assets/screenshots/home.png)
+
+### ✨ Key Features
+
+- Intent Classification (7 customer support intents)
+- Retrieval-Augmented Generation (FAISS + Sentence Transformers)
+- Multi-turn Conversation Memory
+- Human Escalation Engine (Critical / Medium Priority)
+- Retrieved Source Transparency
+- FastAPI Backend + Streamlit Frontend
 
 This project contains the structure for an AI-powered support agent pipeline.
 
@@ -492,10 +508,29 @@ Generated SVG diagrams in `assets/ui/`:
 
 ## Screenshots
 
-Screenshots placeholder. Generate with:
-```bash
-python assets/ui/generate_diagrams.py
-```
+### 🏠 Home Page
+
+![Home Page](assets/screenshots/home.png)
+
+### 📦 Delivery Tracking Conversation
+
+![Delivery Chat](assets/screenshots/delivery_chat.png)
+
+### 🔴 Account Security Escalation
+
+![Account Escalation](assets/screenshots/account_escalation.png)
+
+### 🟠 Billing Investigation Escalation
+
+![Billing Escalation](assets/screenshots/billing_escalation.png)
+
+### 🔵 Refund Investigation Workflow
+
+![Refund Investigation](assets/screenshots/refund_investigation.png)
+
+### 🔍 Retrieved Knowledge Base Sources (RAG Transparency)
+
+![Retrieved Sources](assets/screenshots/retrieved_sources.png)
 
 ## Notes
 
@@ -504,3 +539,29 @@ python assets/ui/generate_diagrams.py
 - All endpoints support CORS from Streamlit frontend
 - Deployment configs are deployment-ready (no manual deployment required)
 - Phase 9 is production-ready and fully tested
+
+## 📸 Application Screenshots
+
+### 🏠 Home Page
+
+![Home Page](assets/screenshots/home.png)
+
+### 📦 Delivery Tracking Conversation
+
+![Delivery Chat](assets/screenshots/delivery_chat.png)
+
+### 🔴 Account Security Escalation
+
+![Account Escalation](assets/screenshots/account_escalation.png)
+
+### 🟠 Billing Investigation Escalation
+
+![Billing Escalation](assets/screenshots/billing_escalation.png)
+
+### 🔵 Refund Investigation Workflow
+
+![Refund Investigation](assets/screenshots/refund_investigation.png)
+
+### 🔍 Retrieved Knowledge Base Sources (RAG)
+
+![Retrieved Sources](assets/screenshots/retrieved_sources.png)
