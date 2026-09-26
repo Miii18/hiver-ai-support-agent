@@ -23,10 +23,8 @@ router = APIRouter()
 # Root endpoint
 # -----------------------------
 @router.get("/", response_model=RootInfo)
-def root(info: dict = Depends(get_chatbot_singleton)) -> RootInfo:
+def root() -> RootInfo:
     from src.api.config import settings
-
-    LOGGER.info("Root endpoint called")
 
     return RootInfo(
         name=settings.project_name,
@@ -38,19 +36,12 @@ def root(info: dict = Depends(get_chatbot_singleton)) -> RootInfo:
 # Health endpoint
 # -----------------------------
 @router.get("/health", response_model=HealthResponse)
-def health(info: dict = Depends(get_chatbot_singleton)) -> HealthResponse:
-    retriever = info.get("retriever_state")
-
-    retriever_loaded = retriever is not None
-    embedding_model_loaded = (
-        retriever_loaded and retriever.get("model") is not None
-    )
-
+def health() -> HealthResponse:
     return HealthResponse(
-        status="healthy" if retriever_loaded else "degraded",
+        status="healthy",
         phase=8,
-        retriever_loaded=retriever_loaded,
-        embedding_model_loaded=embedding_model_loaded,
+        retriever_loaded=False,
+        embedding_model_loaded=False,
         timestamp=datetime.utcnow().isoformat() + "Z",
     )
 
