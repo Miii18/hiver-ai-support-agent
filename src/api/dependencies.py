@@ -9,51 +9,46 @@ from typing import Any
 LOGGER = logging.getLogger("api.dependencies")
 
 
+class DummyChatbot:
+    """Fallback chatbot if real chatbot fails."""
+
+    def __init__(self):
+        self.memory = []
+
+    def answer_query(self, query: str):
+        return {
+            "intent_label": "general_inquiry",
+            "answer": "Chatbot is temporarily unavailable.",
+            "confidence": 0.0,
+            "context": [],
+            "escalation": {},
+            "escalation_triggered": False,
+        }
+
+
 @lru_cache(maxsize=1)
 def get_chatbot_singleton() -> dict[str, Any]:
     """
-    Lazily initialize the chatbot and retriever only once.
-    This prevents Render from crashing during startup.
+    Lazy initialization of chatbot.
+    FAISS index is NOT loaded during startup.
     """
 
-    LOGGER.info("Initializing chatbot singleton and loading retriever/index...")
+    LOGGER.info("Initializing chatbot singleton...")
 
     try:
         from src.chatbot.chatbot import SupportChatbot
-        from src.retrieval.retriever import load_index
 
         bot = SupportChatbot()
 
-        retriever_state = None
-        try:
-            retriever_state = load_index()
-            if retriever_state:
-                LOGGER.info("Retriever loaded successfully.")
-        except Exception as exc:
-            LOGGER.exception("Failed to load FAISS index: %s", exc)
-            retriever_state = None
+        LOGGER.info("Chatbot initialized successfully.")
 
         return {
             "chatbot": bot,
-            "retriever_state": retriever_state,
+            "retriever_state": None,
         }
 
     except Exception as exc:
         LOGGER.exception("Failed to initialize chatbot: %s", exc)
-
-        class DummyChatbot:
-            def __init__(self):
-                self.memory = []
-
-            def answer_query(self, query: str):
-                return {
-                    "intent_label": "general_inquiry",
-                    "answer": "Chatbot initialization failed. Please try again later.",
-                    "confidence": 0.0,
-                    "context": [],
-                    "escalation": {},
-                    "escalation_triggered": False,
-                }
 
         return {
             "chatbot": DummyChatbot(),
