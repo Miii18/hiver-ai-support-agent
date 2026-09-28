@@ -8,10 +8,12 @@ services:
     startCommand: "python scripts/run_api.py"
     healthCheckPath: "/health"
     envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: HF_HOME
+        value: "/opt/render/.cache/huggingface"
       - key: HIVER_API_HOST
         value: "0.0.0.0"
-      - key: HIVER_API_PORT
-        value: "8000"
 
   - type: web
     name: hiver-frontend
@@ -21,5 +23,7 @@ services:
     buildCommand: "pip install -r requirements.txt streamlit"
     startCommand: "python scripts/run_streamlit.py"
     envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: HIVER_API_BASE_URL
         value: "https://hiver-backend.onrender.com"
