@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -18,6 +18,19 @@ from src.api.schemas import (
 
 LOGGER = logging.getLogger("api.routes")
 router = APIRouter()
+
+
+def _get_bot() -> dict:
+    """Dependency wrapper that converts init failures to HTTP 503."""
+    try:
+        return get_chatbot_singleton()
+    except RuntimeError as exc:
+        tb = traceback.format_exc()
+        LOGGER.error("routes: chatbot unavailable — %s\n%s", exc, tb)
+        raise HTTPException(
+            status_code=503,
+            detail={"status": "error", "component": "chatbot", "message": str(exc)},
+        )
 
 
 # -----------------------------
@@ -38,12 +51,17 @@ def root() -> RootInfo:
 # -----------------------------
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
+    from src.retrieval.retriever import _INDEX_CACHE, _MODEL_CACHE
+
+    retriever_loaded = _INDEX_CACHE is not None
+    embedding_loaded = _MODEL_CACHE is not None
+
     return HealthResponse(
         status="healthy",
-        phase=8,
-        retriever_loaded=False,
-        embedding_model_loaded=False,
-        timestamp=datetime.utcnow().isoformat() + "Z",
+        phase=9,
+        retriever_loaded=retriever_loaded,
+        embedding_model_loaded=embedding_loaded,
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
@@ -51,18 +69,16 @@ def health() -> HealthResponse:
 # Intent list
 # -----------------------------
 @router.get("/intents")
-def intents(info: dict = Depends(get_chatbot_singleton)):
+def intents(info: dict = Depends(_get_bot)):
     try:
         classifier = info["chatbot"].classifier
         catalog = classifier.intent_catalog
-
         return {"intents": catalog.to_dict(orient="records")}
-
-    except Exception:
-        LOGGER.exception("Failed to load intents")
+    except Exception as exc:
+        LOGGER.exception("routes: failed to load intents")
         raise HTTPException(
             status_code=500,
-            detail="Intent catalog unavailable",
+            detail={"status": "error", "component": "intent_classifier", "message": str(exc)},
         )
 
 
@@ -72,28 +88,22 @@ def intents(info: dict = Depends(get_chatbot_singleton)):
 @router.post("/chat", response_model=ChatResponse)
 def chat(
     req: ChatRequest,
-    info: dict = Depends(get_chatbot_singleton),
+    info: dict = Depends(_get_bot),
 ) -> ChatResponse:
 
     if not req.query.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Query must not be empty",
-        )
+        raise HTTPException(status_code=400, detail="Query must not be empty")
 
     if req.top_k is not None and req.top_k <= 0:
-        raise HTTPException(
-            status_code=400,
-            detail="top_k must be positive",
-        )
+        raise HTTPException(status_code=400, detail="top_k must be positive")
 
     bot = info["chatbot"]
 
     try:
-        start = datetime.utcnow()
-        LOGGER.info("chat: calling answer_query for query=%r", req.query[:120])
+        start = datetime.now(timezone.utc)
+        LOGGER.info("chat: answer_query query=%r", req.query[:120])
         resp = bot.answer_query(req.query)
-        elapsed = (datetime.utcnow() - start).total_seconds()
+        elapsed = (datetime.now(timezone.utc) - start).total_seconds()
         LOGGER.info("chat: answer_query completed in %.2fs", elapsed)
 
     except Exception as exc:
@@ -102,7 +112,14 @@ def chat(
             "chat: answer_query raised %s: %s\nTraceback:\n%s",
             type(exc).__name__, exc, tb,
         )
-        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "status": "error",
+                "component": "answer_query",
+                "message": f"{type(exc).__name__}: {exc}",
+            },
+        )
 
     sources = [
         SourceItem(
@@ -112,17 +129,13 @@ def chat(
         for item in resp.get("context", [])
     ]
 
-    # Conversation turn calculation
     conversation_turn = 0
     memory = getattr(bot, "memory", None)
-
     try:
         if memory is None:
             conversation_turn = 0
         elif hasattr(memory, "summarize"):
-            conversation_turn = int(
-                memory.summarize().get("turn_count", 0)
-            )
+            conversation_turn = int(memory.summarize().get("turn_count", 0))
         elif hasattr(memory, "history"):
             conversation_turn = len(memory.history or [])
         else:
@@ -142,9 +155,7 @@ def chat(
         escalation_decision=escalation.get("escalation_decision"),
         escalation_priority=escalation.get("escalation_priority"),
         escalation_reason=escalation.get("escalation_reason"),
-        escalation_triggered=bool(
-            resp.get("escalation_triggered", False)
-        ),
+        escalation_triggered=bool(resp.get("escalation_triggered", False)),
     )
 
 
@@ -152,7 +163,7 @@ def chat(
 # Reset conversation
 # -----------------------------
 @router.post("/reset", response_model=ResetResponse)
-def reset(info: dict = Depends(get_chatbot_singleton)) -> ResetResponse:
+def reset(info: dict = Depends(_get_bot)) -> ResetResponse:
     bot = info["chatbot"]
 
     try:
@@ -160,6 +171,5 @@ def reset(info: dict = Depends(get_chatbot_singleton)) -> ResetResponse:
     except Exception:
         setattr(bot, "memory", [])
 
-    LOGGER.info("Conversation memory reset")
-
+    LOGGER.info("routes: conversation memory reset")
     return ResetResponse(status="memory_reset")
