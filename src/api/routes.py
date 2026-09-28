@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import traceback
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -90,17 +91,18 @@ def chat(
 
     try:
         start = datetime.utcnow()
+        LOGGER.info("chat: calling answer_query for query=%r", req.query[:120])
         resp = bot.answer_query(req.query)
         elapsed = (datetime.utcnow() - start).total_seconds()
+        LOGGER.info("chat: answer_query completed in %.2fs", elapsed)
 
-        LOGGER.info("Chat processed in %.2fs", elapsed)
-
-    except Exception:
-        LOGGER.exception("Chat request failed")
-        raise HTTPException(
-            status_code=500,
-            detail="Error generating response",
+    except Exception as exc:
+        tb = traceback.format_exc()
+        LOGGER.error(
+            "chat: answer_query raised %s: %s\nTraceback:\n%s",
+            type(exc).__name__, exc, tb,
         )
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}")
 
     sources = [
         SourceItem(

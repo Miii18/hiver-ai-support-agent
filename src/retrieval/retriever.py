@@ -10,7 +10,8 @@ import faiss
 import numpy as np
 import pandas as pd
 
-HF_CACHE = Path(r'D:\AI\hf_cache')
+_DEFAULT_HF_CACHE = Path(r'D:\AI\hf_cache') if os.name == 'nt' else Path.home() / '.cache' / 'huggingface'
+HF_CACHE = Path(os.environ.get('HF_HOME', str(_DEFAULT_HF_CACHE)))
 HF_CACHE.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault('HF_HOME', str(HF_CACHE))
 os.environ.setdefault('TRANSFORMERS_CACHE', str(HF_CACHE / 'transformers'))
