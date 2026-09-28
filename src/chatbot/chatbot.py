@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
 
@@ -17,6 +18,8 @@ from src.chatbot.response_formatter import ResponseFormatter
 from src.chatbot.response_template_builder import ResponseTemplateBuilder
 from src.escalation.escalation_engine import EscalationEngine
 from src.retrieval.retriever import retrieve
+
+LOGGER = logging.getLogger("chatbot")
 
 
 class SupportChatbot:
@@ -50,7 +53,7 @@ class SupportChatbot:
 
     def answer_query(self, query: str) -> dict:
         """Answer user query with greeting detection and improved intent classification."""
-        # Check for meta queries (AI identity, capabilities, knowledge base, etc.) first
+        LOGGER.info("chatbot: answer_query started query=%r", query[:120])
         if IntelligenceHandler.detect_ai_identity(query):
             answer = IntelligenceHandler.get_identity_response()
             self.memory.add_turn('user', query)
@@ -165,7 +168,9 @@ class SupportChatbot:
         display_name = self.improved_classifier.get_display_name(intent_label)
 
         # Retrieve context from FAISS
+        LOGGER.info("chatbot: retrieving context from FAISS")
         retrieved = retrieve(str(query), top_k=self.top_k)
+        LOGGER.info("chatbot: context retrieved — %d results", len(retrieved))
         context_rows = []
         for _, row in retrieved.iterrows():
             context_rows.append({
@@ -405,6 +410,7 @@ class SupportChatbot:
         )
         result['escalation'] = escalation
         result['escalation_triggered'] = escalation_triggered
+        LOGGER.info("chatbot: answer_query completed intent=%r", display_name)
         return result
 
 

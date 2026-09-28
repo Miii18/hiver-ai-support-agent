@@ -40,9 +40,17 @@ def create_app() -> FastAPI:
             settings.project_name,
             settings.version,
         )
-        LOGGER.info(
-            "API started successfully. Chatbot will load on first request."
-        )
+        # Eagerly initialize chatbot singleton so SentenceTransformer and FAISS
+        # are fully loaded before the first request arrives. On Render free tier,
+        # initializing inside a request handler would exceed the 30s timeout.
+        from src.api.dependencies import get_chatbot_singleton
+        LOGGER.info("startup: initializing chatbot (embedding model + FAISS index)")
+        try:
+            get_chatbot_singleton()
+            LOGGER.info("startup: chatbot ready")
+        except Exception as exc:
+            LOGGER.error("startup: chatbot initialization failed — %s", exc)
+            raise
 
     # Shutdown event
     @app.on_event("shutdown")
