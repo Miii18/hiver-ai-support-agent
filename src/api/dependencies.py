@@ -13,30 +13,23 @@ LOGGER = logging.getLogger("api.dependencies")
 @lru_cache(maxsize=1)
 def get_chatbot_singleton() -> dict[str, Any]:
     """
-    Lazy singleton for SupportChatbot.
-
-    Initializes only on the FIRST /chat request.
-    After that, the chatbot is cached for all future requests.
+    Lazy singleton. Initializes chatbot only on the first /chat request.
     """
 
     LOGGER.info("Initializing chatbot singleton...")
 
     try:
-        # Import only when needed
-        from src.retrieval.retriever import load_index
         from src.chatbot.chatbot import SupportChatbot
 
-        LOGGER.info("Loading FAISS index...")
-        retriever_state = load_index()
-
-        LOGGER.info("Creating SupportChatbot...")
+        # DO NOT call load_index() here.
+        # SupportChatbot should initialize it internally when needed.
         bot = SupportChatbot()
 
         LOGGER.info("Chatbot initialized successfully.")
 
         return {
             "chatbot": bot,
-            "retriever_state": retriever_state,
+            "retriever_state": None,
         }
 
     except Exception as exc:
