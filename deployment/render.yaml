@@ -26,4 +26,4 @@ services:
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: HIVER_API_BASE_URL
-        value: "https://hiver-backend.onrender.com"
+        value: "https://hiver-ai-backend.onrender.com"
