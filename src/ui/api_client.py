@@ -5,8 +5,7 @@ from typing import Any
 
 import requests
 
-API_BASE_URL = os.getenv("HIVER_API_BASE_URL", "http://127.0.0.1:8000")
-
+API_BASE_URL = os.getenv("HIVER_API_BASE_URL", "https://hiver-ai-backend.onrender.com")
 
 def _request(method: str, path: str, **kwargs: Any) -> requests.Response:
     url = f"{API_BASE_URL.rstrip('/')}{path}"
