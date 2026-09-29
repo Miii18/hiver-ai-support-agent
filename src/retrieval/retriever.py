@@ -73,7 +73,7 @@ DOC_METADATA_PATH = (
     / "document_metadata.csv"
 )
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_NAME = "sentence-transformers/paraphrase-MiniLM-L3-v2"
 
 
 # ============================================================
