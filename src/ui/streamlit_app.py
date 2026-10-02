@@ -423,5 +423,9 @@ def main() -> None:
     render_chat_area()
 
 
+app_header = render_header
+render_main = main
+
+
 if __name__ == "__main__":
     main()

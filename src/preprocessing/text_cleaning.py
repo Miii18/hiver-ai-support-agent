@@ -9,8 +9,7 @@ URL_RE = re.compile(r"https?://\S+|www\.\S+", flags=re.IGNORECASE)
 MENTION_RE = re.compile(r"@\w+", flags=re.IGNORECASE)
 HASHTAG_RE = re.compile(r"#\w+", flags=re.IGNORECASE)
 EMOJI_RE = re.compile("[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\u2600-\u26FF\u2700-\u27BF]+", flags=re.UNICODE)
-PUNCT_RE = re.compile(r"[^
-\w\sÀ-ÿ]+", flags=re.UNICODE)
+PUNCT_RE = re.compile(r"[^\w\sÀ-ÿ]+", flags=re.UNICODE)
 
 
 def basic_clean(text: Optional[str]) -> str:

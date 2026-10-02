@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 from src.api.app import app
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_chat_response_schema():
@@ -9,12 +16,6 @@ def test_chat_response_schema():
     data = r.json()
     assert isinstance(data.get('confidence'), float)
     assert isinstance(data.get('sources'), list)
-from __future__ import annotations
-
-import importlib.util
-from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_phase8_success_banner_exact(capsys, monkeypatch) -> None:

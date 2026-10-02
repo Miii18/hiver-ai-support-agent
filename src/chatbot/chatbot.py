@@ -16,7 +16,7 @@ from src.chatbot.prompt_builder import PromptBuilder
 from src.chatbot.query_classifier import QueryClassifier
 from src.chatbot.response_formatter import ResponseFormatter
 from src.chatbot.response_template_builder import ResponseTemplateBuilder
-from src.escalation.escalation_engine import EscalationEngine
+from src.escalation.escalation_engine import EscalationDecision, EscalationEngine, EscalationPriority
 from src.retrieval.retriever import retrieve
 
 LOGGER = logging.getLogger("chatbot")
@@ -54,53 +54,46 @@ class SupportChatbot:
     def answer_query(self, query: str) -> dict:
         """Answer user query with greeting detection and improved intent classification."""
         LOGGER.info("chatbot: answer_query started query=%r", query[:120])
+        def _meta_result(ans: str, label: str, ctx: list | None = None) -> dict:
+            res = ResponseFormatter.format_response(
+                answer=ans,
+                intent_label=label,
+                intent_category=label,
+                confidence=1.0,
+                context=ctx or [],
+            )
+            res['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{label} query handled automatically.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": label,
+            }
+            res['escalation_triggered'] = False
+            return res
+
         if IntelligenceHandler.detect_ai_identity(query):
             answer = IntelligenceHandler.get_identity_response()
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer)
-            return ResponseFormatter.format_response(
-                answer=answer,
-                intent_label='System Info',
-                intent_category='System Info',
-                confidence=1.0,
-                context=[],
-            )
+            return _meta_result(answer, 'System Info')
 
         if IntelligenceHandler.detect_capability_query(query):
             answer = IntelligenceHandler.get_capability_response()
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer)
-            return ResponseFormatter.format_response(
-                answer=answer,
-                intent_label='System Info',
-                intent_category='System Info',
-                confidence=1.0,
-                context=[],
-            )
+            return _meta_result(answer, 'System Info')
 
         if IntelligenceHandler.detect_knowledge_base_query(query):
             answer = IntelligenceHandler.get_knowledge_base_response()
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer)
-            return ResponseFormatter.format_response(
-                answer=answer,
-                intent_label='System Info',
-                intent_category='System Info',
-                confidence=1.0,
-                context=[],
-            )
+            return _meta_result(answer, 'System Info')
 
         if IntelligenceHandler.detect_confidence_query(query):
             answer = IntelligenceHandler.get_confidence_response()
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer)
-            return ResponseFormatter.format_response(
-                answer=answer,
-                intent_label='System Info',
-                intent_category='System Info',
-                confidence=1.0,
-                context=[],
-            )
+            return _meta_result(answer, 'System Info')
 
         if IntelligenceHandler.detect_sources_query(query):
             # Get most recent sources from memory (stored on assistant turns)
@@ -108,25 +101,13 @@ class SupportChatbot:
             answer = IntelligenceHandler.format_sources_response(recent_sources)
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer)
-            return ResponseFormatter.format_response(
-                answer=answer,
-                intent_label='System Info',
-                intent_category='System Info',
-                confidence=1.0,
-                context=recent_sources,
-            )
+            return _meta_result(answer, 'System Info', recent_sources)
 
         if IntelligenceHandler.detect_out_of_scope(query):
             answer = IntelligenceHandler.get_out_of_scope_response()
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer)
-            return ResponseFormatter.format_response(
-                answer=answer,
-                intent_label='Out of Scope',
-                intent_category='Out of Scope',
-                confidence=1.0,
-                context=[],
-            )
+            return _meta_result(answer, 'Out of Scope')
 
         # Check for greeting or casual conversation
         greeting_response = self.greeting_handler.get_greeting_response(query)
@@ -166,6 +147,14 @@ class SupportChatbot:
 
         # Get display name for intent
         display_name = self.improved_classifier.get_display_name(intent_label)
+
+        # Standard auto-handle escalation payload for overrides that resolve queries automatically
+        auto_escalation = {
+            "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+            "escalation_reason": f"{display_name} query with {confidence:.0%} confidence can be auto-handled.",
+            "escalation_priority": EscalationPriority.LOW.value,
+            "escalation_intent": display_name,
+        }
 
         # Retrieve context from FAISS
         LOGGER.info("chatbot: retrieving context from FAISS")
@@ -219,7 +208,7 @@ class SupportChatbot:
                 confidence=float(confidence),
                 context=context_rows,
             )
-            result['escalation'] = escalation
+            result['escalation'] = auto_escalation
             result['escalation_triggered'] = False
             return result
 
@@ -227,7 +216,7 @@ class SupportChatbot:
         _q = query.lower()
 
         # Bug 1: Wrong item ordered → Return / Exchange Request template
-        _wrong_item_terms = {"wrong item", "incorrect product", "incorrect item", "ordered wrong", "wrong product delivered"}
+        _wrong_item_terms = {"wrong item", "incorrect product", "incorrect item", "ordered wrong", "wrong product delivered", "wrong product", "received wrong product", "received the wrong product"}
         if any(t in _q for t in _wrong_item_terms):
             answer = (
                 "**Return / Exchange Request — Wrong Item Received**\n\n"
@@ -243,21 +232,33 @@ class SupportChatbot:
                 "• Print the prepaid return label and drop it off at any return location\n\n"
                 "**Need more help?** If no replacement is available, a full refund will be issued within 3–5 business days."
             )
+            final_intent = "Wrong Item Received"
+            self.memory.active_intent = final_intent
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer, sources=context_rows)
             result = ResponseFormatter.format_response(
                 answer=answer,
-                intent_label=display_name,
-                intent_category=display_name,
+                intent_label=final_intent,
+                intent_category=final_intent,
                 confidence=float(confidence),
                 context=context_rows,
             )
-            result['escalation'] = escalation
+            result['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{final_intent} query with {confidence:.0%} confidence can be auto-handled.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": final_intent,
+            }
             result['escalation_triggered'] = False
             return result
 
-        # Bug 2: Update delivery address → address update steps
-        _address_terms = {"update delivery address", "change shipping address", "change address", "update address", "shipping address"}
+        # Bug 3 fix: address-change override — expanded to catch "change my delivery address" etc.
+        _address_terms = {
+            "update delivery address", "change shipping address", "change address",
+            "update address", "shipping address", "change my delivery address",
+            "change delivery address", "change my address", "change the delivery address",
+            "modify delivery address", "modify my address",
+        }
         if any(t in _q for t in _address_terms):
             answer = (
                 "**Update Delivery Address**\n\n"
@@ -273,16 +274,23 @@ class SupportChatbot:
                 "• As a last resort, you can refuse delivery and request a reship to the correct address\n\n"
                 "**Need more help?** Contact support as early as possible — address updates have a narrow time window."
             )
+            final_intent = "Update Delivery Address"
+            self.memory.active_intent = final_intent
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer, sources=context_rows)
             result = ResponseFormatter.format_response(
                 answer=answer,
-                intent_label=display_name,
-                intent_category=display_name,
+                intent_label=final_intent,
+                intent_category=final_intent,
                 confidence=float(confidence),
                 context=context_rows,
             )
-            result['escalation'] = escalation
+            result['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{final_intent} query with {confidence:.0%} confidence can be auto-handled.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": final_intent,
+            }
             result['escalation_triggered'] = False
             return result
 
@@ -303,16 +311,23 @@ class SupportChatbot:
                 "• Your replacement will be dispatched once the return is received\n\n"
                 "**Need more help?** If the exchange option is not available online, a support agent can process it manually."
             )
+            final_intent = "Exchange Request"
+            self.memory.active_intent = final_intent
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer, sources=context_rows)
             result = ResponseFormatter.format_response(
                 answer=answer,
-                intent_label=display_name,
-                intent_category=display_name,
+                intent_label=final_intent,
+                intent_category=final_intent,
                 confidence=float(confidence),
                 context=context_rows,
             )
-            result['escalation'] = escalation
+            result['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{final_intent} query with {confidence:.0%} confidence can be auto-handled.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": final_intent,
+            }
             result['escalation_triggered'] = False
             return result
 
@@ -334,16 +349,23 @@ class SupportChatbot:
                 "• Disable browser extensions (especially ad-blockers) that may interfere with checkout\n\n"
                 "**Need more help?** If the error persists, note the exact error message and contact support with your cart details."
             )
+            final_intent = "Technical Issue"
+            self.memory.active_intent = final_intent
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer, sources=context_rows)
             result = ResponseFormatter.format_response(
                 answer=answer,
-                intent_label=display_name,
-                intent_category=display_name,
+                intent_label=final_intent,
+                intent_category=final_intent,
                 confidence=float(confidence),
                 context=context_rows,
             )
-            result['escalation'] = escalation
+            result['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{final_intent} query with {confidence:.0%} confidence can be auto-handled.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": final_intent,
+            }
             result['escalation_triggered'] = False
             return result
 
@@ -364,17 +386,103 @@ class SupportChatbot:
                 "• Contact the carrier's customer service using the tracking number for delivery updates\n\n"
                 "**Need more help?** If you need to leave special delivery instructions, add them on the tracking page before the delivery attempt."
             )
+            final_intent = "Delivery Partner Contact"
+            self.memory.active_intent = final_intent
             self.memory.add_turn('user', query)
             self.memory.add_turn('assistant', answer, sources=context_rows)
             result = ResponseFormatter.format_response(
                 answer=answer,
-                intent_label=display_name,
-                intent_category=display_name,
+                intent_label=final_intent,
+                intent_category=final_intent,
                 confidence=float(confidence),
                 context=context_rows,
             )
-            result['escalation'] = escalation
+            result['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{final_intent} query with {confidence:.0%} confidence can be auto-handled.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": final_intent,
+            }
             result['escalation_triggered'] = False
+            return result
+
+        # Bug 2 fix: payment failed / money deducted → payment investigation response
+        _payment_failed_terms = {
+            "payment failed", "payment fail", "failed payment", "money deducted",
+            "amount deducted", "deducted but", "deducted from", "money was deducted",
+            "amount was deducted", "balance deducted", "payment declined",
+        }
+        if any(t in _q for t in _payment_failed_terms):
+            answer = (
+                "**Payment Failed — Money Still Deducted**\n\n"
+                "If your payment failed but money was still deducted from your account, this is usually a temporary bank hold and not a confirmed charge.\n\n"
+                "**What you should know:**\n"
+                "• A 'pending' deduction is a bank authorization hold, not a final charge\n"
+                "• If the order did not go through, the hold is automatically released within 3–5 business days\n"
+                "• Amazon does not retain funds from failed transactions\n"
+                "• The release timeline depends on your bank's internal processing rules\n\n"
+                "**What you can do:**\n"
+                "• Check **Your Orders** — if the order is not listed, the payment did not complete\n"
+                "• Contact your bank and ask about the pending authorization hold\n"
+                "• Request your bank to release the hold early by referencing the failed transaction\n"
+                "• If the hold has not cleared after 5 business days, contact Amazon support with the transaction date and amount\n\n"
+                "**Need more help?** If the deduction appears as a confirmed charge (not a pending hold), contact support immediately with your bank statement."
+            )
+            final_intent = "Payment Failed — Money Still Deducted"
+            self.memory.active_intent = final_intent
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer, sources=context_rows)
+            result = ResponseFormatter.format_response(
+                answer=answer,
+                intent_label=final_intent,
+                intent_category=final_intent,
+                confidence=float(confidence),
+                context=context_rows,
+            )
+            result['escalation'] = {
+                "escalation_decision": EscalationDecision.AUTO_HANDLE.value,
+                "escalation_reason": f"{final_intent} query with {confidence:.0%} confidence can be auto-handled.",
+                "escalation_priority": EscalationPriority.LOW.value,
+                "escalation_intent": final_intent,
+            }
+            result['escalation_triggered'] = False
+            return result
+
+        # Bug 1 fix: damaged item escalation must return damage-specific response, not "Refund Investigation"
+        _damage_terms = {"damaged", "defective", "broken", "cracked", "torn", "ripped", "crushed", "dented", "scratched", "ruined"}
+        if escalation_triggered and any(t in _q for t in _damage_terms):
+            answer = (
+                "**Damaged Item Report**\n\n"
+                "We're sorry your item arrived in damaged condition. Here's what to do:\n\n"
+                "**What you should know:**\n"
+                "• Damaged items are eligible for a free replacement or full refund\n"
+                "• You are not required to return the damaged item in most cases\n"
+                "• A specialist has been alerted to prioritize your case\n\n"
+                "**Immediate steps taken / what to do now:**\n"
+                "• Take clear photos of the damaged item and packaging before doing anything else\n"
+                "• Go to **Your Orders** → select the order → **'Problem with order'** → **'Item arrived damaged'**\n"
+                "• Choose between a free replacement or a full refund\n"
+                "• If the option is not available, contact support and reference 'damaged item on arrival'\n\n"
+                "**Note:** Our returns specialist will review your case and ensure a fast resolution."
+            )
+            final_intent = "Damaged Item Report"
+            self.memory.active_intent = final_intent
+            self.memory.add_turn('user', query)
+            self.memory.add_turn('assistant', answer, sources=context_rows)
+            result = ResponseFormatter.format_response(
+                answer=answer,
+                intent_label=final_intent,
+                intent_category=final_intent,
+                confidence=float(confidence),
+                context=context_rows,
+            )
+            escalation_copy = dict(escalation)
+            escalation_copy['escalation_intent'] = final_intent
+            escalation_copy['escalation_priority'] = EscalationPriority.HIGH.value
+            escalation_copy['escalation_decision'] = EscalationDecision.ESCALATE_TO_HUMAN.value
+            escalation_copy['escalation_reason'] = "High-priority issue detected: damaged or defective item requires human review."
+            result['escalation'] = escalation_copy
+            result['escalation_triggered'] = True
             return result
 
         # Apply response template for better structure
@@ -412,5 +520,9 @@ class SupportChatbot:
         result['escalation_triggered'] = escalation_triggered
         LOGGER.info("chatbot: answer_query completed intent=%r", display_name)
         return result
+
+
+Chatbot = SupportChatbot
+__all__ = ["SupportChatbot", "Chatbot"]
 
 

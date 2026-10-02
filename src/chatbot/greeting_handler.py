@@ -100,6 +100,13 @@ class GreetingHandler:
         Get a predefined response for greeting/casual conversation.
         Returns response dict or None if not a greeting.
         """
+        _greeting_escalation = {
+            "escalation_decision": "AUTO_HANDLE",
+            "escalation_reason": "Greeting query handled automatically.",
+            "escalation_priority": "LOW",
+            "escalation_intent": "Greeting",
+        }
+
         # Check for greeting
         greeting = cls.detect_greeting(query)
         if greeting:
@@ -111,6 +118,8 @@ class GreetingHandler:
                 "confidence": 1.0,
                 "context": [],
                 "is_greeting": True,
+                "escalation": _greeting_escalation,
+                "escalation_triggered": False,
             }
 
         # Check for thank-you
@@ -124,6 +133,8 @@ class GreetingHandler:
                 "confidence": 1.0,
                 "context": [],
                 "is_greeting": True,
+                "escalation": _greeting_escalation,
+                "escalation_triggered": False,
             }
 
         # Check for goodbye
@@ -137,6 +148,8 @@ class GreetingHandler:
                 "confidence": 1.0,
                 "context": [],
                 "is_greeting": True,
+                "escalation": _greeting_escalation,
+                "escalation_triggered": False,
             }
 
         return None

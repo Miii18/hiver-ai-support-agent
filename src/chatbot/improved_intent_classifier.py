@@ -63,13 +63,48 @@ class ImprovedIntentClassifier:
             "hello", "hi", "hey", "thanks", "thank you", "bye", "goodbye",
             "good morning", "good afternoon", "good evening"
         ],
+        "Damaged Item Report": [
+            "damaged", "defective", "broken", "cracked", "torn", "ripped",
+            "crushed", "dented", "scratched", "ruined", "damaged product",
+            "item arrived damaged", "received damaged", "received torn",
+            "received a damaged", "received damaged product", "damaged item",
+            "broken item", "defective item", "item is damaged",
+        ],
+        "Payment Failed — Money Still Deducted": [
+            "payment failed", "payment fail", "failed payment", "money deducted",
+            "amount deducted", "deducted but", "deducted from", "money was deducted",
+            "amount was deducted", "balance deducted", "payment declined",
+            "payment failed but money was deducted", "charged but order failed",
+        ],
+        "Update Delivery Address": [
+            "update delivery address", "change shipping address", "change address",
+            "update address", "shipping address", "change my delivery address",
+            "change delivery address", "change my address", "change the delivery address",
+            "modify delivery address", "modify my address", "wrong address",
+        ],
+        "Wrong Item Received": [
+            "wrong item", "incorrect product", "incorrect item", "ordered wrong",
+            "wrong product delivered", "wrong product", "received wrong product",
+            "received the wrong product", "wrong product and i want a refund",
+            "received incorrect", "sent wrong item",
+        ],
+        "Exchange Request": [
+            "exchange my", "exchange this", "replace with another", "exchange product",
+            "exchange this product", "swap for another", "exchange", "replace size",
+            "swap item", "exchange item",
+        ],
+        "Delivery Partner Contact": [
+            "delivery agent", "delivery person", "delivery partner", "delivery man",
+            "delivery woman", "contact the delivery agent", "contact delivery agent",
+            "contact delivery partner", "reach delivery agent", "call delivery agent",
+            "driver phone", "call delivery driver",
+        ],
         "Returns & Refunds": [
-            "refund", "return", "replacement", "money back", "exchange",
+            "refund", "return", "replacement", "money back",
             "cancel return", "reimburse", "chargeback", "reimbursement",
-            "damaged", "broken", "torn", "opened package", "defective",
-            "cracked", "wrong item", "missing item", "received torn",
-            "received damaged", "damaged product",
-            "incorrect product", "ordered wrong", "wrong product",
+            "missing item", "want a refund", "return my order",
+            "refund for my purchase", "want to return", "refund request",
+            "return request",
         ],
         "Delivery": [
             "delivery", "delivered", "package", "parcel",
@@ -87,8 +122,10 @@ class ImprovedIntentClassifier:
             "cancel prime", "prime benefits"
         ],
         "Login & Authentication": [
-            "password", "login", "otp", "verification", "account locked",
-            "sign in", "forgot password", "access", "2fa", "two factor"
+            "password", "login", "log in", "otp", "verification", "account locked",
+            "sign in", "forgot password", "access", "2fa", "two factor",
+            "cant log in", "can t log in", "cannot log in", "cant sign in",
+            "can t sign in", "account access", "locked out", "locked account",
         ],
         "Promotions & Coupons": [
             "coupon", "promo", "discount", "offer", "code", "promotion",
@@ -96,7 +133,7 @@ class ImprovedIntentClassifier:
         ],
         "Technical Issue": [
             "app crash", "website not working", "error", "bug", "loading",
-            "frozen", "not loading", "broken", "glitch", "crash",
+            "frozen", "not loading", "glitch", "crash",
             "checkout", "checkout failed", "payment page", "unable to place order",
             "unable to place", "place order",
         ],
@@ -119,6 +156,14 @@ class ImprovedIntentClassifier:
         "Promotions & Coupons": "Promotions & Coupons",
         "Technical Issue": "Technical Issue",
         "Greeting": "Greeting",
+        "Damaged Item Report": "Damaged Item Report",
+        "Payment Failed — Money Still Deducted": "Payment Failed — Money Still Deducted",
+        "Update Delivery Address": "Update Delivery Address",
+        "Wrong Item Received": "Wrong Item Received",
+        "Exchange Request": "Exchange Request",
+        "Delivery Partner Contact": "Delivery Partner Contact",
+        "Out of Scope": "Out of Scope",
+        "System Info": "System Info",
         "Other": "Other Support",
     }
 
@@ -130,8 +175,23 @@ class ImprovedIntentClassifier:
         # Then apply typo normalization
         return TypoNormalizer.normalize_text(normalized)
 
-    # Intents that must win over any other match when their keywords are present
-    _HIGH_PRIORITY_INTENTS = {"Returns & Refunds"}
+    # Priority order for intent matching: specific domains first, then general ones
+    _PRIORITY_ORDER = [
+        "Greeting",
+        "Damaged Item Report",
+        "Payment Failed — Money Still Deducted",
+        "Wrong Item Received",
+        "Exchange Request",
+        "Update Delivery Address",
+        "Delivery Partner Contact",
+        "Returns & Refunds",
+        "Delivery",
+        "Orders",
+        "Prime Membership",
+        "Login & Authentication",
+        "Promotions & Coupons",
+        "Technical Issue",
+    ]
 
     @classmethod
     def classify_by_keywords(cls, query: str) -> tuple[str, float] | None:
@@ -146,22 +206,23 @@ class ImprovedIntentClassifier:
             score = 0.0
             for keyword in keywords:
                 if keyword in normalized:
-                    # Exact phrase match gets higher score
-                    if f" {keyword} " in f" {normalized} ":
-                        score += 2.0
-                    else:
-                        score += 1.0
+                    # Longer phrase matches get higher specificity weight
+                    word_count = len(keyword.split())
+                    exact_phrase = f" {keyword} " in f" {normalized} "
+                    multiplier = 2.0 if exact_phrase else 1.0
+                    score += (word_count * 2.0) * multiplier
             if score > 0:
                 scores[intent_label] = score
 
         if not scores:
             return None
 
-        # High-priority intents win over any lower-priority match when they score > 0
-        for hp_intent in cls._HIGH_PRIORITY_INTENTS:
-            if hp_intent in scores:
-                confidence = 1.0 if hp_intent == "Greeting" else 0.95
-                return (hp_intent, round(confidence, 2))
+        # Check in priority order if specific domain matches have matched
+        max_score = max(scores.values())
+        for priority_intent in cls._PRIORITY_ORDER:
+            if priority_intent in scores and scores[priority_intent] >= max_score * 0.5:
+                confidence = 1.0 if priority_intent == "Greeting" else 0.95
+                return (priority_intent, round(confidence, 2))
 
         best_match = max(scores, key=lambda k: scores[k])
         confidence = 1.0 if best_match == "Greeting" else 0.95

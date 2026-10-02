@@ -24,7 +24,7 @@ class EscalationRules:
         r"emergency",
     ]
 
-    # High priority escalation triggers (high-value issues, pending refunds)
+    # High priority escalation triggers (high-value issues, pending refunds, damaged goods)
     HIGH_PRIORITY_PATTERNS = [
         r"refund.*pending.*long",
         r"refund.*waiting.*month",
@@ -33,6 +33,11 @@ class EscalationRules:
         r"expensive.*item.*missing",
         r"high.*value.*package",
         r"account.*locked.*long",
+        r"damaged",
+        r"defective",
+        r"broken",
+        r"cracked",
+        r"shattered",
     ]
 
     # Auto-handleable intents
@@ -40,10 +45,21 @@ class EscalationRules:
         "Greeting": 1.0,
         "Delivery": 0.8,
         "Orders": 0.8,
+        "Returns & Refunds": 0.8,
         "Promotions & Coupons": 0.7,
         "Login & Authentication": 0.85,
         "Prime Membership": 0.75,
         "Technical Issue": 0.7,
+        "Update Delivery Address": 0.8,
+        "Exchange Request": 0.8,
+        "Payment Failed — Money Still Deducted": 0.8,
+        "Wrong Item Received": 0.8,
+        "Delivery Partner Contact": 0.8,
+        "Damaged Item Report": 0.8,
+        "Damaged Product": 0.8,
+        "Out of Scope": 0.8,
+        "System Info": 0.8,
+        "Other Support": 0.8,
     }
 
     @classmethod

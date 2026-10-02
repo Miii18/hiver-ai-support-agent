@@ -34,6 +34,15 @@ def get_display_intent(intent: str | None) -> str:
     return INTENT_DISPLAY_NAMES.get(normalized, intent or "Other Support")
 
 
+def status_pill(label: str, is_active: bool = True) -> None:
+    pill_class = "pill-green" if is_active else "pill-red"
+    icon = "🟢" if is_active else "🔴"
+    st.markdown(
+        f'<span class="status-pill {pill_class}">{icon} {label}</span>',
+        unsafe_allow_html=True,
+    )
+
+
 def system_status_card() -> None:
     st.markdown(
         """

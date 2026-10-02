@@ -144,6 +144,23 @@ def chat(
         conversation_turn = 0
 
     escalation = resp.get("escalation") or {}
+    escalation_triggered = bool(resp.get("escalation_triggered", False))
+    escalation_decision = escalation.get("escalation_decision") or (
+        "ESCALATE_TO_HUMAN" if escalation_triggered else "AUTO_HANDLE"
+    )
+    escalation_priority = escalation.get("escalation_priority") or (
+        "HIGH" if escalation_triggered else "LOW"
+    )
+    escalation_reason = escalation.get("escalation_reason") or (
+        "Human review required." if escalation_triggered else f"{resp.get('intent_label', 'Standard')} query handled automatically."
+    )
+
+    escalation_payload = {
+        "escalation_decision": escalation_decision,
+        "escalation_priority": escalation_priority,
+        "escalation_reason": escalation_reason,
+        "escalation_intent": resp.get("intent_label", ""),
+    }
 
     return ChatResponse(
         query=req.query,
@@ -152,10 +169,11 @@ def chat(
         confidence=float(resp.get("confidence", 0.0)),
         sources=sources,
         conversation_turn=conversation_turn,
-        escalation_decision=escalation.get("escalation_decision"),
-        escalation_priority=escalation.get("escalation_priority"),
-        escalation_reason=escalation.get("escalation_reason"),
-        escalation_triggered=bool(resp.get("escalation_triggered", False)),
+        escalation_decision=escalation_decision,
+        escalation_priority=escalation_priority,
+        escalation_reason=escalation_reason,
+        escalation_triggered=escalation_triggered,
+        escalation=escalation_payload,
     )
 
 

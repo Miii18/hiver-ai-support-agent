@@ -39,6 +39,7 @@ class ChatResponse(BaseModel):
     escalation_priority: Optional[str] = None
     escalation_reason: Optional[str] = None
     escalation_triggered: bool = False
+    escalation: Optional[dict] = None
 
 
 class ResetResponse(BaseModel):

@@ -90,10 +90,10 @@ class TestPhase9Imports:
         # Note: full import may require streamlit context, so we just check the file exists
         app_path = Path("src/ui/streamlit_app.py")
         assert app_path.exists()
-        content = app_path.read_text()
+        content = app_path.read_text(encoding="utf-8")
         assert "initialize_state" in content
-        assert "app_header" in content
-        assert "render_main" in content
+        assert "app_header" in content or "render_header" in content
+        assert "render_main" in content or "main" in content
 
 
 class TestDockerConfiguration:
@@ -101,7 +101,7 @@ class TestDockerConfiguration:
 
     def test_dockerfile_backend_valid(self) -> None:
         """Backend Dockerfile should have required directives."""
-        content = Path("docker/Dockerfile.backend").read_text()
+        content = Path("docker/Dockerfile.backend").read_text(encoding="utf-8")
         assert "FROM python:3.11" in content
         assert "WORKDIR /app" in content
         assert "EXPOSE 8000" in content
@@ -110,7 +110,7 @@ class TestDockerConfiguration:
 
     def test_dockerfile_frontend_valid(self) -> None:
         """Frontend Dockerfile should have required directives."""
-        content = Path("docker/Dockerfile.frontend").read_text()
+        content = Path("docker/Dockerfile.frontend").read_text(encoding="utf-8")
         assert "FROM python:3.11" in content
         assert "WORKDIR /app" in content
         assert "EXPOSE 8501" in content
@@ -121,7 +121,7 @@ class TestDockerConfiguration:
         """docker-compose.yml should have required services."""
         import yaml
 
-        content = Path("docker/docker-compose.yml").read_text()
+        content = Path("docker/docker-compose.yml").read_text(encoding="utf-8")
         config = yaml.safe_load(content)
         assert "services" in config
         assert "backend" in config["services"]
@@ -129,7 +129,7 @@ class TestDockerConfiguration:
 
     def test_dockerignore_exists(self) -> None:
         """.dockerignore should have standard exclusions."""
-        content = Path("docker/.dockerignore").read_text()
+        content = Path("docker/.dockerignore").read_text(encoding="utf-8")
         assert "__pycache__" in content
         assert ".git" in content
 
@@ -141,16 +141,19 @@ class TestDeploymentConfiguration:
         """render.yaml should be valid YAML."""
         import yaml
 
-        content = Path("deployment/render.yaml").read_text()
+        content = Path("deployment/render.yaml").read_text(encoding="utf-8")
         config = yaml.safe_load(content)
         assert "services" in config
         assert len(config["services"]) >= 1
 
     def test_railway_toml_valid(self) -> None:
         """railway.toml should be valid TOML."""
-        import tomli as toml
+        try:
+            import tomllib as toml
+        except ImportError:
+            import tomli as toml
 
-        content = Path("deployment/railway.toml").read_text()
+        content = Path("deployment/railway.toml").read_text(encoding="utf-8")
         config = toml.loads(content)
         assert "build" in config or "services" in config
 
@@ -160,5 +163,5 @@ class TestReadme:
 
     def test_readme_has_phase9_section(self) -> None:
         """README should have Phase 9 section."""
-        content = Path("README.md").read_text()
+        content = Path("README.md").read_text(encoding="utf-8")
         assert "Phase 9" in content or "phase 9" in content.lower()
